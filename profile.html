@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Twidder</title>
+        <link rel="stylesheet" href="welcome.css" type="text/css">
+        <script src="client.js" type="text/javascript"></script> 
+        <script src="serverstub.js" type="text/javascript"></script> 
+    </head>
+    <body>
+       <div class="panel-container">
+            <div class="panel-choices">
+                <div class="panel-choice" onclick="changeTab('hometab', this)">HOME</div>
+                <div class="panel-choice" onclick="changeTab('browsetab',this)">BROWSE</div>
+                <div class="panel-choice" onclick="changeTab('accounttab',this)">ACCOUNT </div>
+            </div>
+            <div class="tab-content" id="hometab">Home</div>
+            <div class="tab-content" id="browsetab">Broswe</div>
+            <div class="tab-content" id="accounttab">
+                <h3>ACCOUNT</h3>
+                <form id="changepw_form" onsubmit="change_password()">
+                   <div>Old Password: <input type="password" required id="account-oldpassword"></div>
+                   <div>New Password: <input type="password" required id="account-newpassword"></div>
+                   <div>Repeat New PW: <input type="password" required id="account-repeatpassword"></div>
+                   <div><input type="submit" value="Change Password"></div>
+                </form>
+                <button>LOGOUT</button>
+            </div>
+        </div>
+        
+    </body>
+</html>

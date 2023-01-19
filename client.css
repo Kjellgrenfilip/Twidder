@@ -62,3 +62,64 @@ body{
     
     height: 22px; 
 }
+
+/* PROFILE VIEW */
+
+.panel-container{
+    width: 600px;
+    margin:auto;
+      
+}
+
+.panel-choices{
+    width: 100%;
+    border: solid 2px orange;
+    display: flex;
+}
+
+.panel-choice{
+    width: 33%;
+    border: solid 1px white;
+    flex-direction: row;
+    text-align: center;
+    padding: 10px 0;
+    color:aquamarine;
+    user-select: none;
+    cursor: pointer;
+}
+
+.panel-choice:hover{
+    background-color: blueviolet;
+    
+}
+
+.panel-choice:active{
+    background-color: orange;
+}
+
+.tab-content{
+    background: greenyellow;
+}
+
+#browsetab{
+    display: none;
+}
+
+#accounttab{
+    display: none;
+}
+
+#changepw_form div{
+    margin: 4px;
+}
+
+.message-container{
+    display: flex;
+    flex-direction: row;
+    border: 1px solid black;
+    margin: 4px;
+}
+
+.message-container div{
+    padding: 4px;
+}
