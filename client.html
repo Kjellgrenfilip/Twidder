@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Twidder</title>
+        <link rel="stylesheet" href="client.css" type="text/css">
+        <script src="client.js" type="text/javascript"></script> 
+        <script src="serverstub.js" type="text/javascript"></script> 
+        <script type="text/view" id="welcomeview">
+        <div class="main-container">
+            <div class="logo-container">
+                <img src="wimage.png">
+            </div>
+            <div class="login-container">
+                <form id="login-form" onsubmit="validate_login()">
+                    Email: <input type="email" id="login-email" />
+                    Password: <input type="password" id="login-password" />
+                    <input type="submit" value="Login" id="login-submit"/>
+                </form>
+            </div>
+            <div class="signup-container">
+                <h4>SIGN UP HERE</h4>
+                <form id="signup-form" onsubmit="validate_signup_input()">
+
+                    <div>Name: <input type="text" id="signup-name" required/></div>
+                    <div>Surname: <input type="text" id="signup-surname" required/></div>
+                        <div>Gender: <select  id="signup-gender">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select></div>
+                            <div>City: <input type="text" id="signup-city" required/></div>
+                        <div>Country: <input type="text" id="signup-country" required/></div>
+                        <div>Email: <input type="email" id="signup-email" required/></div>
+                        <div>Password: <input type="password" id="signup-password" required/></div>
+                        <div>Repeat PW: <input type="password" id="signup-repeatpassword" required/></div>
+                        <div><input type="submit" value="Sign Up" id="signup-submit" required/></div>
+                    
+                </form>
+            </div>
+        </div>
+        <div id="notification-box"></div>      
+        </script>
+        <script type="text/view" id="profileview">
+            <h1>PROFILE</h1>
+        </script>
+    </head>
+    <body>
+        <div id="content"></div> 
+        
+    </body>
+</html>
