@@ -25,16 +25,16 @@ function validate_signup_input()
 {
     event.preventDefault();
     let pw = document.getElementById("signup-password").value;
-    let reppw = document.getElementById("signup-password").value;
+    let reppw = document.getElementById("signup-repeatpassword").value;
 
-    if(newpw != reppw)
-    {
-        notification("Passwords do not match", true);
-        return;
-    }
-    else if(newpw.length < 8)
+    if(pw.length < 8)
     {
         notification("Password must be atleast 8 characters", true);
+        return;
+    }
+    else if(pw != reppw)
+    {
+        notification("Passwords do not match", true);
         return;
     }
 
@@ -105,16 +105,17 @@ function change_password(){
     let reppw = document.getElementById("account-repeatpassword").value;
     let oldpw = document.getElementById("account-oldpassword").value;
     
-    if(newpw != reppw)
-    {
-        notification("Passwords do not match", true);
-        return;
-    }
-    else if(newpw.length < 8)
+    if(newpw.length < 8)
     {
         notification("Password must be atleast 8 characters", true);
         return;
     }
+    else if(newpw != reppw)
+    {
+        notification("Passwords do not match", true);
+        return;
+    }
+
 
     let response = serverstub.changePassword(localStorage.getItem("token"), oldpw, newpw);
     notification(response.message, !response.success);
