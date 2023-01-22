@@ -86,6 +86,7 @@ function changeTab(tab_id, button){
     document.getElementById("hometab").style.display = "none";
     document.getElementById("browsetab").style.display = "none";
     document.getElementById("accounttab").style.display = "none";
+    notification("", false);
     document.getElementById(tab_id).style.display = "block";
 
     let buttons = document.getElementsByClassName("panel-choice");
@@ -137,7 +138,7 @@ function getPersonalInfo(){
 
     for(key in response.data)
     {
-        targetContainer.innerHTML += response.data[key]+ "<br>";
+        targetContainer.innerHTML += "<b>" +key + ": </b>"+ response.data[key]+ "<br>";
     }
     
 
@@ -169,3 +170,14 @@ function getMessages(){
     }
 }
 
+function searchUser(){
+    event.preventDefault();
+    let info = serverstub.getUserDataByEmail(localStorage.getItem("token"), document.getElementById("search-email").value);
+    if(!info.success)
+    {
+        notification(info.message, true);
+        return;
+    }   
+    let messages = serverstub.getUserMessagesByEmail(localStorage.getItem("token"), document.getElementById("search-email").value);
+    
+}
