@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
     <head>
         <title>Twidder</title>
         <link rel="stylesheet" href="client.css" type="text/css">
@@ -41,21 +41,21 @@
         <script type="text/view" id="profileview">
             <div class="panel-container">
                 <div class="panel-choices">
-                    <div class="panel-choice" onclick="changeTab('hometab', this)">HOME</div>
-                    <div class="panel-choice" onclick="changeTab('browsetab',this)">BROWSE</div>
-                    <div class="panel-choice" onclick="changeTab('accounttab',this)">ACCOUNT </div>
+                    <div class="panel-choice" id="hometab-button" onclick="changeTab('hometab')">HOME</div>
+                    <div class="panel-choice" id="browsetab-button" onclick="changeTab('browsetab')">BROWSE</div>
+                    <div class="panel-choice" id="accounttab-button" onclick="changeTab('accounttab')">ACCOUNT </div>
                 </div>
                 <div class="tab-content" id="hometab">
                         
                     <div id="personal-info-container">
                        <h3><u>PERSONAL INFORMATION</u></h3>  
                     </div>
-                    <div id="post-message-container">
+                    <div>
                         <h3>POST MESSAGE HERE</h3>
-                        <textarea name="box" id="textarea-message" cols="30" rows="10"></textarea>
-                        <button id="submit-message-button" onclick="postMessage()">SUBMIT</button>
+                        <textarea name="box" id="hometab-message" cols="30" rows="10"></textarea>
+                        <button onclick="postMessage()">SUBMIT</button>
                     </div>
-                    <div id="message-wall-container">
+                    <div id="hometab-message-wall">
                      
                     </div>
                     <button id="reload-button" onclick="getMessages()"> Refresh Message Wall</button>
@@ -63,10 +63,21 @@
                 <div class="tab-content" id="browsetab">
                     <h3>Browse</h3>
                     <h4>Search for a profile</h4>
-                    <form id="search_profile_form" onsubmit="searchUser()">
+                    <form id="search_profile_form" onsubmit="searchUser(); return false;">
                         <div>E-Mail: <input type="email" id="search-email"><input type="submit" value="search"></div>
-                        
                     </form>
+                    <div id="user-info-container">
+                        <h3><u>USER INFORMATION</u></h3>  
+                     </div>
+                     <div>
+                         <h3>POST MESSAGE HERE</h3>
+                         <textarea name="box" id="browsetab-message" cols="30" rows="10"></textarea>
+                         <button onclick="postMessage()">SUBMIT</button>
+                     </div>
+                     <div id="browsetab-message-wall">
+                      
+                     </div>
+                     <button onclick="getMessages()"> Refresh Message Wall</button>
                 </div>
                 <div class="tab-content" id="accounttab">
                     <h3>ACCOUNT</h3>

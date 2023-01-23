@@ -59,7 +59,7 @@ body{
     font-size: 14px;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content:space-between;
 }
 
 .main-container form{

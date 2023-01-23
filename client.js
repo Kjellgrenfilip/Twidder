@@ -1,9 +1,17 @@
+let display_user = "";
+
 displayView = function(view){
+    notification("",true);
     if(view == 0)
         document.getElementById("content").innerHTML = document.getElementById("welcomeview").innerHTML;
     else if(view == 1)
     {
         document.getElementById("content").innerHTML = document.getElementById("profileview").innerHTML;
+        let curr_tab = localStorage.getItem("current_tab");
+        if(curr_tab == null)
+            changeTab('hometab');
+        else
+            changeTab(curr_tab);        
         getPersonalInfo();
         getMessages();
     }
@@ -53,6 +61,7 @@ function validate_signup_input()
         notification("Signup successful", false);
     else
         notification(response.message, true);
+    
 
 }
 
@@ -64,6 +73,10 @@ function notification(message, is_error){
 
     
         document.getElementById("notification-box").innerHTML = message;
+    
+    setTimeout(() => {
+        document.getElementById("notification-box").innerHTML = "";
+    }, 5000);
 }
 
 function validate_login(){
@@ -82,7 +95,7 @@ function validate_login(){
     return false;
 }
 
-function changeTab(tab_id, button){
+function changeTab(tab_id){
     document.getElementById("hometab").style.display = "none";
     document.getElementById("browsetab").style.display = "none";
     document.getElementById("accounttab").style.display = "none";
@@ -95,9 +108,8 @@ function changeTab(tab_id, button){
     {
         buttons[x].style.color = "white";
     }
-    
-    button.style.color = "orange";
-    
+    document.getElementById(tab_id+"-button").style.color = "orange";
+    localStorage.setItem("current_tab", tab_id);                                        
 }
 
 function change_password(){
@@ -125,6 +137,7 @@ function change_password(){
 
 function logout(){
     localStorage.removeItem("token");
+    localStorage.removeItem("current_tab");
     displayView(0);
 }
 
@@ -132,7 +145,6 @@ function getPersonalInfo(){
     let response = serverstub.getUserDataByToken(localStorage.getItem("token"));
     if(!response.success)
         notification(response.message, true);
-    console.log(response.data);
 
     let targetContainer = document.getElementById("personal-info-container");
 
@@ -145,24 +157,30 @@ function getPersonalInfo(){
 }
 
 function postMessage(){
-    
-    let msg = document.getElementById("textarea-message").value;
-    let response = serverstub.postMessage(localStorage.getItem("token"), msg, null);
+    let curr_tab = localStorage.getItem("current_tab");
+    let msg = document.getElementById(curr_tab+"-message").value;
+    let response = serverstub.postMessage(localStorage.getItem("token"), msg, (curr_tab == "hometab" ? null : document.getElementById("search-email").value));
     
     notification(response.message, !response.success);
     
 }
 
 function getMessages(){
-    document.getElementById("message-wall-container").innerHTML = "";
-    let response = serverstub.getUserMessagesByToken(localStorage.getItem("token"));
+    let curr_tab = localStorage.getItem("current_tab");
+    if(curr_tab == "browsetab" && display_user == "")
+        return;
+    document.getElementById(curr_tab+"-message-wall").innerHTML = "";
+    
 
-    console.log(response.data);
+    let response = ( curr_tab == "hometab" ? 
+    serverstub.getUserMessagesByToken(localStorage.getItem("token")) : 
+    serverstub.getUserMessagesByEmail(localStorage.getItem("token"), display_user));
+    
 
 
     for(let i = 0; i < response.data.length; i++)
     {
-        document.getElementById("message-wall-container").innerHTML += "<div class='message-container'><div class='message-author'>"+
+        document.getElementById(curr_tab+"-message-wall").innerHTML += "<div class='message-container'><div class='message-author'>"+
         response.data[i].writer  +
         "</div><div class='message-content'>" +
         response.data[i].content
@@ -171,13 +189,33 @@ function getMessages(){
 }
 
 function searchUser(){
-    event.preventDefault();
+   // event.preventDefault();
     let info = serverstub.getUserDataByEmail(localStorage.getItem("token"), document.getElementById("search-email").value);
     if(!info.success)
     {
         notification(info.message, true);
         return;
     }   
+    
+    display_user = info.data.email;
+    
+    let targetContainer = document.getElementById("user-info-container");
+    targetContainer.innerHTML ="";
+
+    for(key in info.data)
+    {
+        targetContainer.innerHTML += "<b>" +key + ": </b>"+ info.data[key]+ "<br>";
+    }
+
+    document.getElementById("browsetab-message-wall").innerHTML = "";
     let messages = serverstub.getUserMessagesByEmail(localStorage.getItem("token"), document.getElementById("search-email").value);
     
+    for(let i = 0; i < messages.data.length; i++)
+    {
+        document.getElementById("browsetab-message-wall").innerHTML += "<div class='message-container'><div class='message-author'>"+
+        messages.data[i].writer  +
+        "</div><div class='message-content'>" +
+        messages.data[i].content
+        + "</div></div>";
+    }
 }
