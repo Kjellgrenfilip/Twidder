@@ -139,22 +139,40 @@ body{
 
 .message-container{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     border: 1px solid black;
     margin: 4px;
+    flex-wrap: wrap;
+    background-color: bisque;
 }
 
 .message-container div{
-    padding: 4px;
+    padding: 5px;
 }
 
-#personal-info-container{
+.message-content{
+    padding:4px;
+    overflow-wrap: break-word;
+    inline-size: 100%;
+}
+
+.info-container{
     padding: 10px;
     border-bottom: 10px ridge rgba(46, 46, 44, 0.6);
-    font-size: 20px;
-    
+    font-size: 20px; 
 }
 
 .tab-content h3{
     margin:0 0 5px 0;
+}
+
+textarea{
+    resize: none;
+}
+
+#user-message-wall{
+    display: none;
+}
+#browsetab-message-wall{
+    display:none;
 }

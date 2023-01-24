@@ -150,7 +150,7 @@ function getPersonalInfo(){
 
     for(key in response.data)
     {
-        targetContainer.innerHTML += "<b>" +key + ": </b>"+ response.data[key]+ "<br>";
+        targetContainer.innerHTML += "<b>" +key[0].toUpperCase()+key.substring(1) + ": </b>"+ response.data[key]+ "<br>";
     }
     
 
@@ -181,7 +181,7 @@ function getMessages(){
     for(let i = 0; i < response.data.length; i++)
     {
         document.getElementById(curr_tab+"-message-wall").innerHTML += "<div class='message-container'><div class='message-author'>"+
-        response.data[i].writer  +
+       "<b>"+ response.data[i].writer  + ":"+"</b>"+
         "</div><div class='message-content'>" +
         response.data[i].content
         + "</div></div>";
@@ -189,22 +189,25 @@ function getMessages(){
 }
 
 function searchUser(){
-   // event.preventDefault();
+   //event.preventDefault();
     let info = serverstub.getUserDataByEmail(localStorage.getItem("token"), document.getElementById("search-email").value);
     if(!info.success)
     {
         notification(info.message, true);
         return;
     }   
-    
+    //Activate the post-message textarea and showcase the message-wall when a user is found.
+    document.getElementById("user-message-wall").style.display="block";
+    document.getElementById("browsetab-message-wall").style.display="block";
     display_user = info.data.email;
     
     let targetContainer = document.getElementById("user-info-container");
-    targetContainer.innerHTML ="";
+    targetContainer.innerHTML = "";
+    targetContainer.innerHTML += "<h3><u>USER INFORMATION</u></h3>";
 
     for(key in info.data)
     {
-        targetContainer.innerHTML += "<b>" +key + ": </b>"+ info.data[key]+ "<br>";
+        targetContainer.innerHTML += "<b>" +key[0].toUpperCase()+key.substring(1) + ": </b>"+ info.data[key]+ "<br>";
     }
 
     document.getElementById("browsetab-message-wall").innerHTML = "";
@@ -213,7 +216,7 @@ function searchUser(){
     for(let i = 0; i < messages.data.length; i++)
     {
         document.getElementById("browsetab-message-wall").innerHTML += "<div class='message-container'><div class='message-author'>"+
-        messages.data[i].writer  +
+        "<b>"+ messages.data[i].writer  + ":</b>"+
         "</div><div class='message-content'>" +
         messages.data[i].content
         + "</div></div>";
