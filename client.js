@@ -79,16 +79,14 @@ function notification(message, is_error){
     }, 5000);
 }
 
-function validate_login(){
-    event.preventDefault();
+function validate_login(formElement){
 
-    let response = serverstub.signIn(document.getElementById("login-email").value, document.getElementById("login-password").value);
+    let response = serverstub.signIn(formElement.loginEmail.value, formElement.loginPassword.value);
     if(response.success)
     {
         localStorage.setItem("token", response.data);
         displayView(1);
-    }
-       
+    } 
     else
         notification(response.message, true);
 
@@ -112,11 +110,10 @@ function changeTab(tab_id){
     localStorage.setItem("current_tab", tab_id);                                        
 }
 
-function change_password(){
-    event.preventDefault();
-    let newpw = document.getElementById("account-newpassword").value;
-    let reppw = document.getElementById("account-repeatpassword").value;
-    let oldpw = document.getElementById("account-oldpassword").value;
+function change_password(formElement){
+    let newpw = formElement.changePasswordNew.value;
+    let reppw = formElement.changePasswordRepeat.value;
+    let oldpw = formElement.changePasswordOld.value;
     
     if(newpw.length < 8)
     {

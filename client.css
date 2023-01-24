@@ -1,5 +1,5 @@
 body{
-    background-color: rgb(15, 92, 46);
+    background-color: rgb(44, 71, 112);
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -14,7 +14,7 @@ body{
     "logo sign"
     "logo sign";
     margin: 100px auto 0 auto;
-    border: solid 4px rgb(0, 61, 25);
+    border: solid 4px rgb(5, 26, 56);
     gap:10px;
     color: black;
     border-radius: 8px;
@@ -30,14 +30,14 @@ body{
     width: 100%;
     height: 100%;
     grid-area: logo;
-    background-color: rgb(41, 122, 74);
+    background-color: rgb(76, 103, 140);
 }
 
 .login-container{
     width: 100%;
     height: 100%;
     grid-area: login;
-    background-color: rgb(41, 122, 74);
+    background-color: rgb(76, 103, 140);
     border-radius: 0 8px;
 }
 
@@ -45,7 +45,7 @@ body{
     width: 100%;
     height: 100%;
     grid-area: sign;
-    background-color: rgb(41, 122, 74);
+    background-color: rgb(76, 103, 140);
     border-radius: 8px 0;
 }
 
@@ -72,17 +72,17 @@ body{
 .main-container form input{
     width: 60%;
     height: 14px;
-    background-color: rgb(122, 183, 147);
-    border: 2px solid rgb(0, 61, 25);
+    background-color: rgb(117, 138, 168);
+    border: 2px solid rgb(5, 26, 56);
     border-radius: 4px;
 }
 
 .main-container form select{
-    background-color: rgb(122, 183, 147);
+    background-color: rgb(117, 138, 168);
 }
 
 .main-container form input[type="submit"]{
-    background-color: rgb(122, 183, 147);
+    background-color: rgb(117, 138, 168);
     height: 22px;
     border-radius: 4px;
 }
@@ -96,33 +96,32 @@ body{
 
 .panel-choices{
     width: 100%;
-    border: solid 2px orange;
+    border: solid 2px white;
     display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
 }
 
 .panel-choice{
     width: 33%;
     border: solid 1px white;
-    flex-direction: row;
     text-align: center;
     padding: 10px 0;
     color:aquamarine;
     user-select: none;
     cursor: pointer;
+    font-weight: bold;
 }
 
 .panel-choice:hover{
-    background-color: blueviolet;
+    background-color: rgb(76, 103, 140);
     
 }
 
 .panel-choice:active{
     background-color: orange;
-}
-
-.tab-content{
-    background: #61876E;
-    
 }
 
 #browsetab{
@@ -131,10 +130,6 @@ body{
 
 #accounttab{
     display: none;
-}
-
-#changepw_form div{
-    margin: 4px;
 }
 
 .message-container{
@@ -166,6 +161,27 @@ body{
     margin:0 0 5px 0;
 }
 
+div.tab-content{
+    padding: 4px;
+    border: 2px solid white;
+    border-top: none;
+    background-color: rgb(76, 103, 140);
+}
+
+#accounttab form{
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+#accounttab form div{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 4px 0;
+}
+
 textarea{
     resize: none;
 }
@@ -175,4 +191,18 @@ textarea{
 }
 #browsetab-message-wall{
     display:none;
+}
+
+.general-button{
+    color: white;
+    background: rgb(20, 47, 84);
+    padding: 8px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.general-button:hover{
+    background: rgb(44, 71, 112);
 }
