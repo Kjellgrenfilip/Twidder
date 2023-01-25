@@ -65,17 +65,22 @@ function validate_signup_input()
 
 }
 
+let timeout;
+
 function notification(message, is_error){
     if(is_error)
         document.getElementById("notification-box").style.color = "red";
     else
         document.getElementById("notification-box").style.color = "green";
 
-    
-        document.getElementById("notification-box").innerHTML = message;
-    
-    setTimeout(() => {
-        document.getElementById("notification-box").innerHTML = "";
+    document.getElementById("notification-box").style.visibility = "visible";
+    document.getElementById("notification-box").innerHTML = message;
+    //Clear previous timeout if still pending
+    clearTimeout(timeout);
+
+    //Set notification do disappear after 5 seconds
+    timeout = setTimeout(() => {
+        document.getElementById("notification-box").style.visibility = "hidden";
     }, 5000);
 }
 
@@ -97,7 +102,7 @@ function changeTab(tab_id){
     document.getElementById("hometab").style.display = "none";
     document.getElementById("browsetab").style.display = "none";
     document.getElementById("accounttab").style.display = "none";
-    notification("", false);
+    document.getElementById("notification-box").style.visibility = "hidden";
     document.getElementById(tab_id).style.display = "block";
 
     let buttons = document.getElementsByClassName("panel-choice");
@@ -147,7 +152,7 @@ function getPersonalInfo(){
 
     for(key in response.data)
     {
-        targetContainer.innerHTML += "<b>" +key[0].toUpperCase()+key.substring(1) + ": </b>"+ response.data[key]+ "<br>";
+        targetContainer.innerHTML += "<div><b>" +key[0].toUpperCase()+key.substring(1) + ": </b>"+ response.data[key]+ "<br></div>";
     }
     
 
@@ -159,7 +164,7 @@ function postMessage(){
     let response = serverstub.postMessage(localStorage.getItem("token"), msg, (curr_tab == "hometab" ? null : document.getElementById("search-email").value));
     
     notification(response.message, !response.success);
-    
+    document.getElementById(curr_tab+"-message").value = '';
 }
 
 function getMessages(){
@@ -186,7 +191,6 @@ function getMessages(){
 }
 
 function searchUser(){
-   //event.preventDefault();
     let info = serverstub.getUserDataByEmail(localStorage.getItem("token"), document.getElementById("search-email").value);
     if(!info.success)
     {
@@ -195,16 +199,19 @@ function searchUser(){
     }   
     //Activate the post-message textarea and showcase the message-wall when a user is found.
     document.getElementById("user-message-wall").style.display="block";
+    document.getElementById("user-message-wall").style.display="block";
     document.getElementById("browsetab-message-wall").style.display="block";
+    document.getElementById("user-wall-name").innerHTML = info.data["firstname"] + "'s Message Wall";
     display_user = info.data.email;
     
     let targetContainer = document.getElementById("user-info-container");
+    document.getElementById("user-info-container").style.display="flex";
     targetContainer.innerHTML = "";
-    targetContainer.innerHTML += "<h3><u>USER INFORMATION</u></h3>";
+    targetContainer.innerHTML += "<h4>USER INFORMATION</h4>";
 
     for(key in info.data)
     {
-        targetContainer.innerHTML += "<b>" +key[0].toUpperCase()+key.substring(1) + ": </b>"+ info.data[key]+ "<br>";
+        targetContainer.innerHTML += "<div class='info-attribute'><b>" +key[0].toUpperCase()+key.substring(1) + ": </b>"+ info.data[key]+ "<br></div>";
     }
 
     document.getElementById("browsetab-message-wall").innerHTML = "";

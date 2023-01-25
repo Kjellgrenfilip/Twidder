@@ -89,6 +89,8 @@ body{
 
 /* PROFILE VIEW */
 
+
+/* Menu choices */
 .panel-container{
     width: 600px;
     margin:auto;
@@ -151,14 +153,29 @@ body{
     inline-size: 100%;
 }
 
-.info-container{
-    padding: 10px;
-    border-bottom: 10px ridge rgba(46, 46, 44, 0.6);
-    font-size: 20px; 
+#personal-info-container{
+    display: flex;
 }
 
-.tab-content h3{
-    margin:0 0 5px 0;
+.info-container{
+    padding: 4px;
+    border-bottom: 2px solid white;
+    border-top: 2px solid white;
+    font-size: 20px; 
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-direction: row;
+    background-color:  rgb(20, 47, 84);
+}
+.info-container h4{
+    flex: 100%;
+    color:wheat;
+    margin:0 0 3px 0;
+}
+.info-container div{
+    flex: 49%;
+    color: white;
 }
 
 div.tab-content{
@@ -166,6 +183,10 @@ div.tab-content{
     border: 2px solid white;
     border-top: none;
     background-color: rgb(76, 103, 140);
+}
+
+#accounttab h3{
+    margin: 8px 0;
 }
 
 #accounttab form{
@@ -182,11 +203,26 @@ div.tab-content{
     margin: 4px 0;
 }
 
-textarea{
+.message-form-container textarea{
     resize: none;
+    width: 100%;
+    box-sizing: border-box;
 }
 
+.message-form-container div{
+    margin-bottom: 4px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.message-form-container button{
+    width: 40%;
+}
+
+
 #user-message-wall{
+    padding: 4px;
     display: none;
 }
 #browsetab-message-wall{

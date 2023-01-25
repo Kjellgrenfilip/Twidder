@@ -48,13 +48,15 @@
                 <div class="tab-content" id="hometab">
                         
                     <div  class="info-container"  id="personal-info-container">
-                       <h3><u>PERSONAL INFORMATION</u></h3>  
+                       <h4>PERSONAL INFORMATION</h4>  
                     </div>
-                    <div>
+                    <div class="message-form-container">
                         <h3>Personal Message Wall</h3>
-                        <textarea name="box" id="hometab-message" cols="30" rows="10"></textarea>
-                        <button class="general-button" onclick="postMessage()">Post Message</button>
-                        <button class="general-button" id="reload-button" onclick="getMessages()"> Refresh Message Wall</button>
+                        <div><textarea name="box" id="hometab-message" cols="30" rows="10"></textarea></div>
+                        <div>
+                            <button class="general-button" onclick="postMessage()">Post Message</button>
+                            <button class="general-button" id="reload-button" onclick="getMessages()"> Refresh Message Wall</button>
+                        </div>
                     </div>
                     <div id="hometab-message-wall">
                      
@@ -62,19 +64,21 @@
                     
                 </div>
                 <div class="tab-content" id="browsetab">
-                    <h3>Browse</h3>
-                    <h4>Search for a profile</h4>
+                   
+                    <h3>Search for a profile</h3>
                     <form id="search_profile_form" onsubmit="searchUser(); return false;">
-                        <div>E-Mail: <input type="email" id="search-email"><input class="general-button" type="submit" value="search"></div>
+                        <div>E-Mail: <input type="email" id="search-email">  <input class="general-button" type="submit" value="Search"></div>
                     </form>
                     <div class="info-container" id="user-info-container">
                         
                     </div>
-                     <div id="user-message-wall">
-                         <h3>User Message Wall</h3>
-                         <textarea name="box" id="browsetab-message" cols="30" rows="10"></textarea>
-                         <button class="general-button" onclick="postMessage()">Post Message</button>
-                         <button class="general-button" onclick="getMessages()"> Refresh Message Wall</button>
+                     <div class="message-form-container" id="user-message-wall">
+                         <h3 id="user-wall-name"></h3>
+                         <div><textarea name="box" id="browsetab-message" cols="30" rows="10"></textarea></div>
+                         <div>
+                            <button class="general-button" onclick="postMessage()">Post Message</button>
+                            <button class="general-button" onclick="getMessages()"> Refresh Message Wall</button>
+                        </div>
                      </div>
                      <div id="browsetab-message-wall">
                         
@@ -96,7 +100,7 @@
         </script>
     </head>
     <body>
+        <div id="notification-box">Notification text placeholder</div>
         <div id="content"></div> 
-        <div id="notification-box"></div>
     </body>
 </html>
