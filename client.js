@@ -29,11 +29,11 @@ window.onload = function(){
     
 };
 
-function validate_signup_input()
+function validate_signup_input(formElement)
 {
-    event.preventDefault();
-    let pw = document.getElementById("signup-password").value;
-    let reppw = document.getElementById("signup-repeatpassword").value;
+    
+    let pw = formElement.signupPassword.value;
+    let reppw = formElement.signupRepeatpassword.value;
 
     if(pw.length < 8)
     {
@@ -47,13 +47,13 @@ function validate_signup_input()
     }
 
     let dataobject = 
-    {'email': document.getElementById("signup-email").value,
-    'password': document.getElementById("signup-password").value,
-    'firstname': document.getElementById("signup-name").value,
-    'familyname': document.getElementById("signup-surname").value,
+    {'email': formElement.signupEmail.value,
+    'password': pw,
+    'firstname': formElement.signupName.value,
+    'familyname': formElement.signupSurname.value,
     'gender': document.getElementById("signup-gender").value,
-    'city': document.getElementById("signup-city").value,
-    'country': document.getElementById("signup-country").value,
+    'city': formElement.signupCity.value,
+    'country': formElement.signupCountry.value,
     }
 
     let response = serverstub.signUp(dataobject);
@@ -131,7 +131,6 @@ function change_password(formElement){
         return;
     }
 
-
     let response = serverstub.changePassword(localStorage.getItem("token"), oldpw, newpw);
     notification(response.message, !response.success);
 
@@ -154,8 +153,6 @@ function getPersonalInfo(){
     {
         targetContainer.innerHTML += "<div><b>" +key[0].toUpperCase()+key.substring(1) + ": </b>"+ response.data[key]+ "<br></div>";
     }
-    
-
 }
 
 function postMessage(){

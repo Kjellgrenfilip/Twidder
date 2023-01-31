@@ -15,23 +15,23 @@
                     <div>Email: <input type="email" id="loginEmail" /></div>
                     <div>Password: <input type="password" id="loginPassword" /></div>
                     <input type="submit" value="Login" id="login-submit"/>
-                </form>
+                </form> 
             </div>
             <div class="signup-container">
                 <h4>Sign up here</h4>
-                <form id="signup-form" onsubmit="validate_signup_input()">
+                <form id="signup-form" onsubmit="validate_signup_input(this); return false;">
 
-                    <div>Name: <input type="text" id="signup-name" required/></div>
-                    <div>Surname: <input type="text" id="signup-surname" required/></div>
+                    <div>Name: <input type="text" id="signupName" required/></div>
+                    <div>Surname: <input type="text" id="signupSurname" required/></div>
                         <div>Gender: <select  id="signup-gender">
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                             </select></div>
-                            <div>City: <input type="text" id="signup-city" required/></div>
-                        <div>Country: <input type="text" id="signup-country" required/></div>
-                        <div>Email: <input type="email" id="signup-email" required/></div>
-                        <div>Password: <input type="password" id="signup-password" required/></div>
-                        <div>Repeat PW: <input type="password" id="signup-repeatpassword" required/></div>
+                            <div>City: <input type="text" id="signupCity" required/></div>
+                        <div>Country: <input type="text" id="signupCountry" required/></div>
+                        <div>Email: <input type="email" id="signupEmail" required/></div>
+                        <div>Password: <input type="password" id="signupPassword" required/></div>
+                        <div>Repeat PW: <input type="password" id="signupRepeatpassword" required/></div>
                         <div><input type="submit" value="Sign Up" id="signup-submit" required/></div>
                     
                 </form>

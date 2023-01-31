@@ -1,0 +1,58 @@
+6. Questions for consideration
+1. Wh\ do Ze Yalidate data before sending it to the serYer at client-side, as opposed to just letting
+the serYer Yalidate data before using it? What Ze get and Zhat Ze lose b\ it?
+
+Gain: less load on server Lose: Validation can be surpassed
+
+2. HoZ secure is the s\stem using an access token to authenticate? Is there an\ Za\ to circumYent it
+and get access to priYate data?
+
+All server functions returning data requires a token.
+Not any way circumvent that we have noticed.    
+
+3. What Zould happen if a user Zere to post a message containing JaYaScript-code? Would the code
+be e[ecuted? HoZ can it oppose a threat to the s\stem? What Zould the counter measure?
+
+We tried posting a script in the message form, but it is not executed.
+A script could possibly access local storage and send the access token to a third party.
+
+Possible protection: strip all input of forbidden characters or keywords.
+
+4. What happens Zhen Ze use the back/forZard buttons Zhile Zorking Zith TZidder? Is this the
+e[pected behaYiour? Wh\ are Ze getting this behaYiour? What Zould be the solution?
+
+Because it is a single page application it should not pe possible to go forward/backwards.
+
+5. What happens Zhen the user refreshes the page Zhile Zorking Zith TZidder? Is this the e[pected
+behaYiour? Wh\ are Ze getting this behaYiour?
+
+We get the expected behaviour. The onload function restores the content from data in local storage.
+
+6. Is it a good idea to read YieZs from the serYer instead of embedding them inside of the
+³client.html´? What are the adYantages and disadYantages of it comparing to the current
+approach?
+
+current approach: More data loaded at once, user could change to a different view by manipulating cookies or executing scripts.
+
+7. Is it a good idea to return true or false to state if an operation has gone Zrong at the serYer-side or
+not? HoZ can it be improYed?
+
+Could be improved with specific status codes to indicate what went wrong. Status codes is easier to translate directly to specific error messages.
+
+8. Is it reliable to perform data Yalidation at client-side? If so please e[plain hoZ and if not Zhat
+Zould be the solution to improYe it?
+
+It is good for trivial validation, like length of passwords or required fields.
+But server should still validate to prevent sql injections or script injections.
+
+
+9. Wh\ isn¶t it a good idea to use WDEOHV for la\out purposes? What Zould be the replacement?
+
+Tables look bad yeah. Grids/flexboxes etc are good replacements.
+
+10. HoZ do \ou think Single Page Applications can contribute to the future of the Zeb? What is their
+adYantages and disadYantages from usage and deYelopment point of YieZs?
+
+Better user experience. Faster feeling, no reloads or redirects to other pages. 
+
+Multipage devloping offers more separation of code and modularity which is easier to maintain.
