@@ -100,7 +100,7 @@ def signOutUser(token):
         print("failed to delete logged in user")
         return False
     
-def post_message(token, msg, to_email):
+def postMessage(token, msg, to_email):
     user = getLoggedInUser(token)
     try:
         get_dB().execute("insert into userMessages values(?,?,?);", [to_email, user['email'], msg])
@@ -108,6 +108,32 @@ def post_message(token, msg, to_email):
         return True
     except:
         return False
+    
+
+def getMessages(email=None, token=None):
+    #cursor = get_dB().cursor()
+    try:
+        if email and token:
+            cursor= get_dB().execute("SELECT * from userMessages where toEmail=?;", [email])
+        elif token is not None:
+            user = getLoggedInUser(token)
+            cursor = get_dB().execute("SELECT * from userMessages where toEmail=?;", [user['email']])
+
+        response = {}
+        msg_id = 0
+        for row in cursor.fetchall():
+            response[msg_id] = {'toEmail':   row[0],
+                                'fromEmail': row[1],
+                                'msg':       row[2]
+                               }
+            msg_id += 1
+
+        cursor.close()
+        return response 
+    except:
+        cursor.close()
+        return "banannana"
+    
     
     
  

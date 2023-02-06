@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def root():
-    return "Hello Filip", 200
+    return "Hello RalleBallz", 200
  #------------HJÄLPFUNKTIONER------------------
 def createUserToken(email):
     chars = "abcdefghiklmnopqrstuvwwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
@@ -155,16 +155,38 @@ def post_message():
     if 'message' not in data or 'to_email' not in data or not token:
         return createRespons(400)
     if isLoggedIn(token) and db.findUser(data['email']):
-        response = db.post_message(token, data['message'],data['email'])
+        response = db.postMessage(token, data['message'],data['email'])
         if response:
             return createRespons(200)
         else:
             createRespons(402)
     else:
         return createRespons(401)
+    
+@app.route("/user/get_messages_by_email", methods=['GET'])
+def get_messages_by_email():
+    data = request.get_json()
+    token = request.headers.get('Authorization')
+    if 'email' in data and isLoggedIn(token):
+        messages = db.getMessages(email=data['email'],token=token)
+        if messages is not None:
+            return createRespons(200, jsonify(messages))
+        else:
+            return createRespons(400)
+    return
 
-
-
+@app.route("/user/get_messages_by_token", methods=['GET'])
+def get_messages_by_token():
+    token = request.headers.get('Authorization')
+    if token is None:
+        return createRespons(400)
+    if isLoggedIn(token): #Bör implementera en funktion som kollar så att användaren finns baserat på Token. Ska fixas
+        messages = db.getMessages(token=token)
+        if messages is not None:
+            return createRespons(200, jsonify(messages))
+        else:
+            return createRespons(400)
+    
 if __name__ == "__main__":
     app.debug = True
     app.run()
