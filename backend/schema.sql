@@ -15,15 +15,11 @@ CREATE TABLE loggedInUsers(
 );
 
 CREATE TABLE userMessages(
+    id INTEGER primary key autoincrement,
     toEmail VARCHAR(30),
     fromEmail VARCHAR(30),
-    msg VARCHAR(144),
-    PRIMARY KEY(toEmail, fromEmail, msg)
+    msg VARCHAR(144)
 );
 
 
-INSERT into Users (email, pwd, firstname, familyname, gender, city, country) VALUES('kalle@123.se', '123', 'kalle', 'johnny', 'male', 'gnbe', 'sweden');
-INSERT into loggedInUsers (email, token) VALUES('kalle@123.se', '12345');
-INSERT into userMessages(toEmail, fromEmail, msg) VALUES('a@123.se', 'kalle@123.se', 'Hej Din lilla rackarunge!');
-INSERT into userMessages(toEmail, fromEmail, msg) VALUES('kalle@123.se','a@123.se', 'Hej Din lilla rackarunge!');
-INSERT into userMessages(toEmail, fromEmail, msg) VALUES('kalle@123.se','a@123.se', 'tjo katt');
+INSERT into Users (email, pwd, firstname, familyname, gender, city, country) VALUES('kalle@123.se', '12345678', 'kalle', 'johnny', 'male', 'gnbe', 'sweden');

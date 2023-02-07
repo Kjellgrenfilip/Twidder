@@ -2,7 +2,7 @@ import sqlite3
 from flask import g, json
 import json
 
-DATABASE_URL = 'dbtest.db'
+DATABASE_URL = 'database.db'
 #-----------------------HELP FUNCTIONS--------------------------------
 def get_dB():
     db = getattr(g, 'db', None)
@@ -14,18 +14,26 @@ def get_dB():
 #Kanske en funktion som initierar databasen?
 #Kanske en funktion som "stänger/disconnectar"
 
+def disconnect():
+    db = getattr(g,'db', None)
+    if db is not None:
+        g.db.close()
+        g.db = None
 
 #-----------------------QUERY-functions--------------------------------
 def findUser(email):
-    cursor = get_dB().execute("SELECT * FROM Users where email=?;", [email])
-    output = cursor.fetchone()
-    cursor.close()
-
-    if output:
-        response = {'email': output[0], 'password': output[1]}  #Kanske ska vi skicka med all information om användaren, beror på lite vad som kommer behlövas senare.
-        return response
-    else:
-        return False #Vad ska man returnera när användaren inte finns?
+    try:
+        cursor = get_dB().execute("SELECT * FROM Users where email=?;", [email])
+        output = cursor.fetchone()
+        cursor.close()
+            
+        if output:
+            response = {'email': output[0], 'password': output[1]}  #Kanske ska vi skicka med all information om användaren, beror på lite vad som kommer behlövas senare.
+            return response
+        else:
+            return False #Vad ska man returnera när användaren inte finns?
+    except:
+        return False
 
 def createUser(email, pw, firstname, familyname, gender, country, city):
     try:
@@ -46,20 +54,32 @@ def signInUser(email, token):
     return True #Om användaren lyckades skapas
 
 def getLoggedInUser(token):
-    cursor = get_dB().execute("SELECT * FROM loggedInUsers where token=?;", [token])
-    output = cursor.fetchall()[0]
-    cursor.close()
-
-    if output:
+    try:
+        cursor = get_dB().execute("SELECT * FROM loggedInUsers where token=?;", [token])
+        output = cursor.fetchone()
+        cursor.close()
+        
+        if output is None:
+            return False
         response = {'email': output[0], 'token': token}  #Returnerar email b.la. så att man kan komma åt userinfo sen
         return response
-    else:
-        return False #Vad ska man returnera när användaren inte finns?
-    
+    except:
+        return False
+
+def getPassword(token):
+    try:
+        email = getLoggedInUser(token)['email']
+        cursor = get_dB().execute("SELECT pwd FROM Users where email=?;", [email])
+        output = cursor.fetchone()
+        cursor.close()
+        return output[0]
+    except:
+        return None
+
 def updatePassword(token, newpw):
     try:
         email = getLoggedInUser(token)['email']
-        get_dB().execute("UPDATE Users SET pw=? WHERE email=?", [newpw,email])
+        get_dB().execute("UPDATE Users SET pwd=? WHERE email=?", [newpw,email])
         get_dB().commit()
     except:
         print("SQL query updatePassword failed")
@@ -84,7 +104,6 @@ def getUserData(email=None, token=None): #Använder samma funktion för email/to
             'city': user_data[6]
         }
         cursor.close()
-        print(response)
         return response #Kan lika gärna returna direkt men gjorde såhär för min egna läsbarhet
     except:
         cursor.close()
@@ -103,28 +122,23 @@ def signOutUser(token):
 def postMessage(token, msg, to_email):
     user = getLoggedInUser(token)
     try:
-        get_dB().execute("insert into userMessages values(?,?,?);", [to_email, user['email'], msg])
+        get_dB().execute("insert into userMessages (toEmail, fromEmail, msg) values(?,?,?);", [to_email, user['email'], msg])
         get_dB().commit()
         return True
     except:
         return False
     
 
-def getMessages(email=None, token=None):
-    #cursor = get_dB().cursor()
+def getMessages(email):
     try:
-        if email and token:
+        if email is not None:
             cursor= get_dB().execute("SELECT * from userMessages where toEmail=?;", [email])
-        elif token is not None:
-            user = getLoggedInUser(token)
-            cursor = get_dB().execute("SELECT * from userMessages where toEmail=?;", [user['email']])
-
         response = {}
         msg_id = 0
         for row in cursor.fetchall():
-            response[msg_id] = {'toEmail':   row[0],
-                                'fromEmail': row[1],
-                                'msg':       row[2]
+            response[msg_id] = {'toEmail':   row[1],
+                                'fromEmail': row[2],
+                                'msg':       row[3]
                                }
             msg_id += 1
 
@@ -132,7 +146,7 @@ def getMessages(email=None, token=None):
         return response 
     except:
         cursor.close()
-        return "banannana"
+        return False
     
     
     
