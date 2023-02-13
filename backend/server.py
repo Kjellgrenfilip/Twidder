@@ -2,7 +2,6 @@ from flask import Flask, request, json, jsonify, make_response
 import random
 import database_handler as db
 
-LoggedInUsers = {}
 
 app = Flask(__name__)
 
@@ -12,17 +11,15 @@ def teardown(e):
 
 @app.route("/", methods=["GET"])
 def root():
-    return "Hello RalleBallz", 200
- #------------HJÄLPFUNKTIONER------------------
+    return "Hello Twidder", 200
+ #---------------HJÄLPFUNKTIONER------------------#
 def createUserToken(email):
     chars = "abcdefghiklmnopqrstuvwwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
     token = ""
     for i in range(len(chars)):
         token += chars[random.randint(0, len(chars)-1)]
-    LoggedInUsers[email] = token
     return token
 
-#Fattar inte om bara själva datan ska returneras i Json eller hela responsen? Oklart i lab-PM
 def createRespons(s_code,data=None): #Kan lägga till fler medlemmar sen som authorization och sånt
     if(data == None):
         return make_response('', s_code)
@@ -57,7 +54,10 @@ def getPassword(token):
     return db.getPassword(token)
 
 def emailToPassword(email):
-    return db.findUser(email)['password']
+    resp = db.findUser(email)
+    if resp == False:
+       return None
+    return resp['password']
 
 def tokenToEmail(token):
     return db.getLoggedInUser(token)['email']
@@ -79,14 +79,12 @@ def sign_in():
     if 'email' not in data or 'password' not in data:
         return createRespons(400)
     else:
-        try:
-            if (data['password'] == emailToPassword(data['email']) and userExists(data['email'])):
-                token = createUserToken(data['email']) #Lyckad inloggning, skapar en token som ska returneras
-                LoggedInUsers['email'] = token  #Lägger till Email + Token
-                db.signInUser(data['email'], token)  #Tror det ska lag is not None401=Unauthorized
-                return createRespons(200, token)
-        except:
-            return createRespons(404)  #Användaren finns ej 404=Server could not find the requested ressource
+        if (data['password'] == emailToPassword(data['email']) and userExists(data['email'])): #Kolla så lösenord matchar det i databasen
+            token = createUserToken(data['email']) #Lyckad inloggning, skapar en token som ska returneras
+            db.signInUser(data['email'], token)
+            return createRespons(200, jsonify(token=token))
+
+        return createRespons(401)  #Användaren har angett fel lösenord alternativt finns ej registrerad
         
 @app.route("/user/sign_up", methods=["POST"])
 def sign_up():
@@ -97,114 +95,124 @@ def sign_up():
             if not userExists(data['email']):
                 user = db.createUser(data['email'], data['password'],data['firstname'], data['familyname'],data['gender'],data['country'], data['city'])
                 if user:
-                    return createRespons(200, jsonify(user))
+                    return createRespons(201)  #201 = Created
+                else:
+                    return createRespons(500)  #500 - internal server error: Av någon anledning kunde användare inte skapas
             else:
-                print("user not created, already exists")
-                return createRespons(409, jsonify(message="User Already Exists")) #User already exists - 409 = Conflict with current resources?
-        else:
-            return createRespons(400, jsonify("Wrong User Input for signup"))
-    return createRespons(400, jsonify("Not all data provided"))
+                return createRespons(409) #User already exists - 409 = Conflict with current resources?
+        
+    return createRespons(400) #400- Bad Request: Datan som angivits uppfyller inte alla krav alterativt har inte all data angivits
+
 
 @app.route("/user/sign_out", methods=["DELETE"])
 def sign_out():
-    token = request.headers.get('Authorization')
-    if isLoggedIn(token):
-        if db.signOutUser(token):
-            return createRespons(200)
-        else:
-            return createRespons(400)
-        
-    return createRespons(400)   
+    if 'Authorization' in request.headers:
+        token = request.headers.get('Authorization')
+        if token is not None:
+            if isLoggedIn(token):
+                if db.signOutUser(token):
+                    return createRespons(200)
+                else:
+                    return createRespons(401)   #Felaktig token - Unauthorized
+            
+    return createRespons(400) #Bad Request - No Token Provided in the header  
 
-#Fixa lite mer kontroller här
 @app.route("/user/change_pw", methods=['PUT'])
 def change_password(): #Får in Token i header, gamla + nya lösenordet i bodyn? 
     if 'Authorization' not in request.headers:
-        return createRespons(401)
+        return createRespons(400)
     token = request.headers['Authorization']
     if not isLoggedIn(token):
         return createRespons(401)
     data = request.get_json()
-    if 'oldPW' in data and 'newPW' in data: #Kanske ska kolla på serversidan så att oldPW överensstämmer med det som finns i databas
+    if 'oldPW' in data and 'newPW' in data and len(data['newPW']) >= 8:
         if data['oldPW'] != getPassword(token):
-            return createRespons(401, "Old password is incorrect")
-        if len(data['newPW']) < 8:
-            return createRespons(406)
+            return createRespons(403) #403 Forbidden: We are logged in and authenticated, but provide wrong information about ourselves?
         response = db.updatePassword(token, data['newPW'])
-        
-        if response:
-            return createRespons(200)
-    else:
-        return createRespons(400)
-    return createRespons(300)
-
-        
-@app.route("/user/get_user_data_by_email/<email>", methods=['GET'])
-def get_user_data_by_email(email):
-   # data = request.get_json()
-    token = request.headers.get('Authorization')
-    if email is None or token is None:
-        return createRespons(400, jsonify('No email or/and token entered'))
-    if isLoggedIn(token) == False:
-        return createRespons(401)
-    user_data = db.getUserData(email=email)
-    if not user_data:
-        return createRespons(404)
-    return createRespons(200, jsonify(user_data))
-
-@app.route("/user/get_user_data_by_token", methods=['GET'])
-def get_user_data_by_token():
-    token = request.headers.get('Authorization') #Antar att man ska skicka token i header? 
-    if not token:
-        return createRespons(400, jsonify('No token entered'))
-    if not isLoggedIn(token):
-        return createRespons(401)
-    user_data = db.getUserData(token=token)
-    if not user_data:
-        return createRespons(404)
-    return createRespons(200, jsonify(user_data))
-    
-@app.route("/user/post_message", methods=['PUT'])
-def post_message(): #Lämna epost tom om vi postar på egen vägg
-    data = request.get_json()
-    token = request.headers.get('Authorization')
-    if 'message' not in data or 'to_email' not in data or not token:
-        return createRespons(400)
-    if isLoggedIn(token) and db.findUser(data['to_email']):
-        response = db.postMessage(token, data['message'],data['to_email'])
         if response:
             return createRespons(200)
         else:
-            return createRespons(402)
-    else:
-        return createRespons(401)
+            return createRespons(500) #500- Internal Server Error.
+
+    return createRespons(400) # 400 oldPW eller newPW finns inte med i payload eller så är lösenordet för kort
+ 
+@app.route("/user/get_user_data_by_token", methods=['GET'])
+def get_user_data_by_token():
+    if 'Authorization' in request.headers:
+        token = request.headers.get('Authorization')
+        if not isLoggedIn(token):
+            return createRespons(401) #401 - Unauthorized
+        user_data = db.getUserData(tokenToEmail(token))
+        if not user_data:
+            return createRespons(500)
+        return createRespons(200, jsonify(user_data)) 
+    return createRespons(400) #Bad request
+        
+@app.route("/user/get_user_data_by_email/<email>", methods=['GET'])
+def get_user_data_by_email(email):
+    if 'Authorization' in request.headers:
+        token = request.headers.get('Authorization')
+        if email is None:
+            return createRespons(400)
+        if not isLoggedIn(token):
+            return createRespons(401)
+        if userExists(email) == False:
+            return createRespons(404)
+        user_data = db.getUserData(email)
+        if not user_data:
+            return createRespons(500)
+        return createRespons(200, jsonify(user_data))
+    return createRespons(400)
+
+@app.route("/user/get_messages_by_token", methods=['GET'])
+def get_messages_by_token():
+    if 'Authorization' not in request.headers:
+        return createRespons(400)
+    token = request.headers.get('Authorization')
+
+    if isLoggedIn(token): 
+        messages = db.getMessages(tokenToEmail(token))
+        if not messages:
+            return createRespons(500) #Internal server error
+        else:
+            return createRespons(200, jsonify(messages))
+    return createRespons(401)
     
 @app.route("/user/get_messages_by_email/<email>", methods=['GET'])
 def get_messages_by_email(email):
+    if 'Authorization' not in request.headers:
+        return createRespons(400)
     token = request.headers.get('Authorization')
     if email is None:
         return createRespons(400)
+    if not userExists(email):
+        return createRespons(404)
+
     if isLoggedIn(token):
         messages = db.getMessages(email)
         if messages:
             return createRespons(200, jsonify(messages))
         else:
-            return createRespons(404)
-    else:
-        return createRespons(401)
+            return createRespons(500) #INTERNAL server error, nånting går fel på Databassidan
 
-@app.route("/user/get_messages_by_token", methods=['GET'])
-def get_messages_by_token():
+    return createRespons(401)
+
+@app.route("/user/post_message", methods=['POST'])
+def post_message(): #Lämna epost tom om vi postar på egen vägg
+    data = request.get_json()
+    if 'message' not in data or 'to_email' not in data or 'Authorization' not in request.headers:
+        return createRespons(400)   #400 - alla fält finns inte i payload
     token = request.headers.get('Authorization')
-    if token is None:
-        return createRespons(400)
-    if isLoggedIn(token): 
-        email = tokenToEmail(token)
-        messages = db.getMessages(email)
-        if messages == False:
-            return createRespons(400)
+    if not isLoggedIn(token):
+        return createRespons(401)
+    
+    if userExists(data["to_email"]):
+        response = db.postMessage(tokenToEmail(token), data['message'],data['to_email'])
+        if response:
+            return createRespons(201)
         else:
-            return createRespons(200, jsonify(messages))
+            return createRespons(500)
+    return createRespons(400) #Bad request. Svårt att säga vilken felkod
             
     
 if __name__ == "__main__":

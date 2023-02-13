@@ -86,15 +86,11 @@ def updatePassword(token, newpw):
         return False
     return True 
 
-def getUserData(email=None, token=None): #Använder samma funktion för email/token. Man kan välja
+def getUserData(email): #Använder samma funktion för email/token. Man kan välja
     cursor = get_dB().cursor()
     try:
-        if email:
-            cursor.execute("SELECT * from Users where email=?;", [email])
-        elif token:
-            user = getLoggedInUser(token)
-            cursor.execute("SELECT * from Users where email=?;", [user['email']])
-        user_data = cursor.fetchall()[0]
+        cursor.execute("SELECT * from Users where email=?;", [email])
+        user_data = cursor.fetchone()
         response = {
             'email': user_data[0],
             'firstname': user_data[2],
@@ -119,10 +115,9 @@ def signOutUser(token):
         print("failed to delete logged in user")
         return False
     
-def postMessage(token, msg, to_email):
-    user = getLoggedInUser(token)
+def postMessage(from_email, msg, to_email):
     try:
-        get_dB().execute("insert into userMessages (toEmail, fromEmail, msg) values(?,?,?);", [to_email, user['email'], msg])
+        get_dB().execute("insert into userMessages (toEmail, fromEmail, msg) values(?,?,?);", [to_email,from_email, msg])
         get_dB().commit()
         return True
     except:
