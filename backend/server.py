@@ -29,12 +29,12 @@ def createRespons(s_code,data=None): #Kan lägga till fler medlemmar sen som aut
 def isLoggedIn(token):
     user = db.getLoggedInUser(token)
 
-    if user == False:
-        return False
-    return True
+    if user != False and user != None:
+        return True
+    return user
 
 def validateUserInput(data):
-    if len(data['email']) < 3 or len(data['email']) > 30:
+    if not validateEmail(data['email']):
         return False
     if len(data['password']) < 8:
         return False
@@ -47,6 +47,19 @@ def validateUserInput(data):
     if len(data['city']) < 1 or len(data['city']) > 20:
         return False
     if len(data['country']) < 1 or len(data['country']) > 20:
+        return False
+    return True
+
+def validateEmail(email):
+    at = email.find('@')
+    if at == -1 or at == 0:
+        return False
+    dot = email.find('.', at)
+    if dot == -1:
+        return False
+    if (dot - at) == 1:
+        return False
+    if dot == (len(email) - 1):
         return False
     return True
 
@@ -84,12 +97,12 @@ def sign_in():
             db.signInUser(data['email'], token)
             return createRespons(200, jsonify(token=token))
 
-        return createRespons(401)  #Användaren har angett fel lösenord alternativt finns ej registrerad
+        return createRespons(401)  #Användaren har angett fel lösenord alternativt finns ej registrerad, kanske 404
         
 @app.route("/user/sign_up", methods=["POST"])
 def sign_up():
     data = request.get_json()
-    #Extremt ful if-sats hehehehe ska fixa bättre när jag har bättre koll - Kolla om all krävd data är given
+    #Extremt ful if-sats  Kolla om all krävd data är given
     if 'email' in data and 'password' in data and 'firstname' in data and 'familyname' in data and 'gender' in data and 'country' in data and 'city' in data:
         if validateUserInput(data):
             if not userExists(data['email']):
@@ -172,7 +185,7 @@ def get_messages_by_token():
 
     if isLoggedIn(token): 
         messages = db.getMessages(tokenToEmail(token))
-        if not messages:
+        if messages == False:
             return createRespons(500) #Internal server error
         else:
             return createRespons(200, jsonify(messages))

@@ -56,15 +56,16 @@ def signInUser(email, token):
 def getLoggedInUser(token):
     try:
         cursor = get_dB().execute("SELECT * FROM loggedInUsers where token=?;", [token])
+        if cursor == None:
+            cursor.close()
+            return None #Returnerar None om det eftersökta inte finns
         output = cursor.fetchone()
         cursor.close()
         
-        if output is None:
-            return False
-        response = {'email': output[0], 'token': token}  #Returnerar email b.la. så att man kan komma åt userinfo sen
+        response = {'email': output[0], 'token': token} 
         return response
     except:
-        return False
+        return False #Returnerar False om något fel inträffar i databasen
 
 def getPassword(token):
     try:
@@ -129,6 +130,10 @@ def getMessages(email):
         if email is not None:
             cursor= get_dB().execute("SELECT * from userMessages where toEmail=?;", [email])
         response = {}
+        
+        if cursor == None:
+            return response
+        
         msg_id = 0
         for row in cursor.fetchall():
             response[msg_id] = {'toEmail':   row[1],
