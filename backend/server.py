@@ -68,17 +68,20 @@ def getPassword(token):
 
 def emailToPassword(email):
     resp = db.findUser(email)
-    if resp == False:
-       return None
+    if resp == False or resp == None:
+       return resp
     return resp['password']
 
 def tokenToEmail(token):
-    return db.getLoggedInUser(token)['email']
+    resp = db.getLoggedInUser(token)
+    if resp == False or resp == None:
+       return resp
+    return resp['email']
 
 def userExists(email):
     resp = db.findUser(email)
-    if resp == False:
-        return False
+    if resp == False or resp == None:
+        return resp
     return True
 
 
@@ -92,7 +95,13 @@ def sign_in():
     if 'email' not in data or 'password' not in data:
         return createRespons(400)
     else:
-        if (data['password'] == emailToPassword(data['email']) and userExists(data['email'])): #Kolla så lösenord matchar det i databasen
+        stored_password = emailToPassword(data['email'])
+        user_exists = userExists(data['email'])
+        if stored_password == False or user_exists == False:
+            return createRespons(500)
+        if stored_password == None or user_exists == None:
+            return createRespons(404)
+        if (data['password'] == stored_password): #Kolla så lösenord matchar det i databasen
             token = createUserToken(data['email']) #Lyckad inloggning, skapar en token som ska returneras
             db.signInUser(data['email'], token)
             return createRespons(200, jsonify(token=token))
@@ -122,11 +131,15 @@ def sign_out():
     if 'Authorization' in request.headers:
         token = request.headers.get('Authorization')
         if token is not None:
-            if isLoggedIn(token):
-                if db.signOutUser(token):
-                    return createRespons(200)
-                else:
-                    return createRespons(401)   #Felaktig token - Unauthorized
+            logged_in = isLoggedIn(token)
+            if logged_in == False:
+                return createRespons(500)
+            if logged_in == None:
+                return createRespons(401)
+            if db.signOutUser(token):
+                return createRespons(200)
+            else:
+                return createRespons(500)   #Felaktig token - Unauthorized
             
     return createRespons(400) #Bad Request - No Token Provided in the header  
 
@@ -135,12 +148,15 @@ def change_password(): #Får in Token i header, gamla + nya lösenordet i bodyn?
     if 'Authorization' not in request.headers:
         return createRespons(400)
     token = request.headers['Authorization']
-    if not isLoggedIn(token):
+    logged_in = isLoggedIn(token)
+    if logged_in == False:
+        return createRespons(500)
+    if logged_in == None:
         return createRespons(401)
     data = request.get_json()
     if 'oldPW' in data and 'newPW' in data and len(data['newPW']) >= 8:
         if data['oldPW'] != getPassword(token):
-            return createRespons(403) #403 Forbidden: We are logged in and authenticated, but provide wrong information about ourselves?
+            return createRespons(403) #403 Forbidden: We are logged in and authenticated, but provide wrong information about ourselves
         response = db.updatePassword(token, data['newPW'])
         if response:
             return createRespons(200)
@@ -148,13 +164,16 @@ def change_password(): #Får in Token i header, gamla + nya lösenordet i bodyn?
             return createRespons(500) #500- Internal Server Error.
 
     return createRespons(400) # 400 oldPW eller newPW finns inte med i payload eller så är lösenordet för kort
- 
+
 @app.route("/user/get_user_data_by_token", methods=['GET'])
 def get_user_data_by_token():
     if 'Authorization' in request.headers:
         token = request.headers.get('Authorization')
-        if not isLoggedIn(token):
-            return createRespons(401) #401 - Unauthorized
+        logged_in = isLoggedIn(token)
+        if logged_in == False:
+            return createRespons(500)
+        if logged_in == None:
+            return createRespons(401)
         user_data = db.getUserData(tokenToEmail(token))
         if not user_data:
             return createRespons(500)
@@ -167,13 +186,16 @@ def get_user_data_by_email(email):
         token = request.headers.get('Authorization')
         if email is None:
             return createRespons(400)
-        if not isLoggedIn(token):
-            return createRespons(401)
-        if userExists(email) == False:
-            return createRespons(404)
-        user_data = db.getUserData(email)
-        if not user_data:
+        logged_in = isLoggedIn(token)
+        if logged_in == False:
             return createRespons(500)
+        if logged_in == None:
+            return createRespons(401)
+        user_data = db.getUserData(email)
+        if user_data == False:
+            return createRespons(500)
+        if user_data == None:
+            return createRespons(404)
         return createRespons(200, jsonify(user_data))
     return createRespons(400)
 
@@ -183,12 +205,16 @@ def get_messages_by_token():
         return createRespons(400)
     token = request.headers.get('Authorization')
 
-    if isLoggedIn(token): 
-        messages = db.getMessages(tokenToEmail(token))
-        if messages == False:
-            return createRespons(500) #Internal server error
-        else:
-            return createRespons(200, jsonify(messages))
+    logged_in = isLoggedIn(token)
+    if logged_in == False:
+        return createRespons(500)
+    if logged_in == None:
+        return createRespons(401)
+    messages = db.getMessages(tokenToEmail(token))
+    if messages == False:
+        return createRespons(500) #Internal server error
+    else:
+        return createRespons(200, jsonify(messages))
     return createRespons(401)
     
 @app.route("/user/get_messages_by_email/<email>", methods=['GET'])
@@ -198,15 +224,19 @@ def get_messages_by_email(email):
     token = request.headers.get('Authorization')
     if email is None:
         return createRespons(400)
-    if not userExists(email):
+    if userExists(email) == None:
         return createRespons(404)
 
-    if isLoggedIn(token):
-        messages = db.getMessages(email)
-        if messages:
-            return createRespons(200, jsonify(messages))
-        else:
-            return createRespons(500) #INTERNAL server error, nånting går fel på Databassidan
+    logged_in = isLoggedIn(token)
+    if logged_in == False:
+        return createRespons(500)
+    if logged_in == None:
+        return createRespons(401)
+    messages = db.getMessages(email)
+    if messages:
+        return createRespons(200, jsonify(messages))
+    else:
+        return createRespons(500) #INTERNAL server error, nånting går fel på Databassidan
 
     return createRespons(401)
 
@@ -216,15 +246,19 @@ def post_message(): #Lämna epost tom om vi postar på egen vägg
     if 'message' not in data or 'to_email' not in data or 'Authorization' not in request.headers:
         return createRespons(400)   #400 - alla fält finns inte i payload
     token = request.headers.get('Authorization')
-    if not isLoggedIn(token):
+    logged_in = isLoggedIn(token)
+    if logged_in == False:
+        return createRespons(500)
+    if logged_in == None:
         return createRespons(401)
     
-    if userExists(data["to_email"]):
-        response = db.postMessage(tokenToEmail(token), data['message'],data['to_email'])
-        if response:
-            return createRespons(201)
-        else:
-            return createRespons(500)
+    if userExists(data["to_email"]) == None:
+        return createRespons(404)
+    response = db.postMessage(tokenToEmail(token), data['message'],data['to_email'])
+    if response:
+        return createRespons(201)
+    else:
+        return createRespons(500)
     return createRespons(400) #Bad request. Svårt att säga vilken felkod
             
     

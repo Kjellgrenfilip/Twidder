@@ -12,7 +12,6 @@ def get_dB():
 
 
 #Kanske en funktion som initierar databasen?
-#Kanske en funktion som "stänger/disconnectar"
 
 def disconnect():
     db = getattr(g,'db', None)
@@ -20,18 +19,22 @@ def disconnect():
         g.db.close()
         g.db = None
 
+#Logik: Returnera False = exception -> server skickar statuskod 500
+#       Returnera None = ingen rad matchade query
 #-----------------------QUERY-functions--------------------------------
+
 def findUser(email):
     try:
         cursor = get_dB().execute("SELECT * FROM Users where email=?;", [email])
         output = cursor.fetchone()
         cursor.close()
-            
-        if output:
-            response = {'email': output[0], 'password': output[1]}  #Kanske ska vi skicka med all information om användaren, beror på lite vad som kommer behlövas senare.
-            return response
-        else:
-            return False #Vad ska man returnera när användaren inte finns?
+        
+        if output == None:
+            return None
+
+        response = {'email': output[0], 'password': output[1]}  #Kanske ska vi skicka med all information om användaren, beror på lite vad som kommer behlövas senare.
+        return response
+        
     except:
         return False
 
@@ -56,11 +59,10 @@ def signInUser(email, token):
 def getLoggedInUser(token):
     try:
         cursor = get_dB().execute("SELECT * FROM loggedInUsers where token=?;", [token])
-        if cursor == None:
-            cursor.close()
-            return None #Returnerar None om det eftersökta inte finns
         output = cursor.fetchone()
         cursor.close()
+        if output == None:
+            return None
         
         response = {'email': output[0], 'token': token} 
         return response
@@ -92,6 +94,9 @@ def getUserData(email): #Använder samma funktion för email/token. Man kan väl
     try:
         cursor.execute("SELECT * from Users where email=?;", [email])
         user_data = cursor.fetchone()
+        cursor.close()
+        if user_data == None:
+            return None
         response = {
             'email': user_data[0],
             'firstname': user_data[2],
@@ -100,7 +105,7 @@ def getUserData(email): #Använder samma funktion för email/token. Man kan väl
             'country': user_data[5],
             'city': user_data[6]
         }
-        cursor.close()
+        
         return response #Kan lika gärna returna direkt men gjorde såhär för min egna läsbarhet
     except:
         cursor.close()
