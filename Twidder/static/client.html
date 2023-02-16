@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <title>Twidder</title>
+        <link rel="stylesheet" href="static/client.css" type="text/css">
+        <script src="static/client.js" type="text/javascript"></script> 
+        <script src="static/serverstub.js" type="text/javascript"></script> 
+        <script type="text/view" id="welcomeview">
+        <div class="main-container">
+            <div class="logo-container">
+                <img src="static/wimage.png">
+            </div>
+            <div class="login-container">
+                <form id="login-form" onsubmit="validate_login(this); return false;">
+                    <div>Email: <input type="email" id="loginEmail" /></div>
+                    <div>Password: <input type="password" id="loginPassword" /></div>
+                    <input type="submit" value="Login" id="login-submit"/>
+                </form> 
+            </div>
+            <div class="signup-container">
+                <h4>Sign up here</h4>
+                <form id="signup-form" onsubmit="validate_signup_input(this); return false;">
+
+                    <div>Name: <input type="text" id="signupName" required/></div>
+                    <div>Surname: <input type="text" id="signupSurname" required/></div>
+                        <div>Gender: <select  id="signup-gender">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select></div>
+                            <div>City: <input type="text" id="signupCity" required/></div>
+                        <div>Country: <input type="text" id="signupCountry" required/></div>
+                        <div>Email: <input type="email" id="signupEmail" required/></div>
+                        <div>Password: <input type="password" id="signupPassword" required/></div>
+                        <div>Repeat PW: <input type="password" id="signupRepeatpassword" required/></div>
+                        <div><input type="submit" value="Sign Up" id="signup-submit" required/></div>
+                    
+                </form>
+            </div>
+        </div>    
+        </script>
+        <script type="text/view" id="profileview">
+            <div class="panel-container">
+                <div class="panel-choices">
+                    <div class="panel-choice" id="hometab-button" onclick="changeTab('hometab')">Home</div>
+                    <div class="panel-choice" id="browsetab-button" onclick="changeTab('browsetab')">Browse</div>
+                    <div class="panel-choice" id="accounttab-button" onclick="changeTab('accounttab')">Account</div>
+                </div>
+                <div class="tab-content" id="hometab">
+                        
+                    <div  class="info-container"  id="personal-info-container">
+                       <h4>PERSONAL INFORMATION</h4>  
+                    </div>
+                    <div class="message-form-container">
+                        <h3>Personal Message Wall</h3>
+                        <div><textarea name="box" id="hometab-message" cols="30" rows="10"></textarea></div>
+                        <div>
+                            <button class="general-button" onclick="postMessage()">Post Message</button>
+                            <button class="general-button" id="reload-button" onclick="getMessages()"> Refresh Message Wall</button>
+                        </div>
+                    </div>
+                    <div id="hometab-message-wall">
+                     
+                    </div>
+                    
+                </div>
+                <div class="tab-content" id="browsetab">
+                   
+                    <h3>Search for a profile</h3>
+                    <form id="search_profile_form" onsubmit="searchUser(); return false;">
+                        <div>E-Mail: <input type="email" id="search-email">  <input class="general-button" type="submit" value="Search"></div>
+                    </form>
+                    <div class="info-container" id="user-info-container">
+                        
+                    </div>
+                     <div class="message-form-container" id="user-message-wall">
+                         <h3 id="user-wall-name"></h3>
+                         <div><textarea name="box" id="browsetab-message" cols="30" rows="10"></textarea></div>
+                         <div>
+                            <button class="general-button" onclick="postMessage()">Post Message</button>
+                            <button class="general-button" onclick="getMessages()"> Refresh Message Wall</button>
+                        </div>
+                     </div>
+                     <div id="browsetab-message-wall">
+                        
+                     </div>
+                     
+                    
+                </div>
+                <div class="tab-content" id="accounttab">
+                    <h3>ACCOUNT</h3>
+                    <form id="changepw_form" onsubmit="change_password(this); return false;">
+                       <div>Old Password: <input type="password" required id="changePasswordOld"></div>
+                       <div>New Password: <input type="password" required id="changePasswordNew"></div>
+                       <div>Repeat New PW: <input type="password" required id="changePasswordRepeat"></div>
+                       <div><input class="general-button" type="submit" value="Change Password"></div>
+                    </form>
+                    <input class="general-button" type="button" value="Logout" onclick="logout()"/>
+                </div>
+            </div>
+        </script>
+    </head>
+    <body>
+        <div id="notification-box">Notification text placeholder</div>
+        <div id="content"></div> 
+    </body>
+</html>
