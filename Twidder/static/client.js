@@ -1,4 +1,5 @@
 let display_user = "";
+let socket;
 
 displayView = function(view){
     notification("",true);
@@ -21,7 +22,11 @@ displayView = function(view){
 
 window.onload = function(){
     if(localStorage.getItem("token") != null)
+    {
+        establish_websocket();      //If we have token, connect websocket to see if sesion is valid
         displayView(1);
+    }
+        
     else
         displayView(0);
     //Kod som körs när en visst view visas
@@ -109,6 +114,7 @@ function validate_login(formElement){
             {
                 localStorage.setItem("token", JSON.parse(xhttp.responseText).token);
                 localStorage.setItem("email", formElement.loginEmail.value);
+                establish_websocket();
                 displayView(1);
             }
             else
@@ -340,3 +346,41 @@ function searchUser(){
     xhttp.setRequestHeader("Authorization", localStorage.getItem("token"));
     xhttp.send();
 }
+
+function establish_websocket(){
+    socket = new WebSocket("ws://127.0.0.1:5000/ws");
+
+    socket.onopen = function(e) {
+
+        let payload = {"token": localStorage.getItem("token")};
+        socket.send(JSON.stringify(payload));
+    };
+  
+    socket.onmessage = function(event) {
+        if(event.data == "success")
+            alert("Websocket connected");
+        if(event.data == "terminated"){
+            alert("Session invalid");
+            localStorage.removeItem("token");
+            localStorage.removeItem("email");
+            localStorage.removeItem("current_tab");
+            displayView(0);
+        } 
+    };
+  
+    socket.onclose = function(event) {
+        if (event.wasClean) {
+            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        } else {
+        // e.g. server process killed or network down
+        // event.code is usually 1006 in this case
+            alert('[close] Connection died');
+        }
+    };
+  
+    socket.onerror = function(error) {
+        alert(`[error]`);
+    };
+
+}
+

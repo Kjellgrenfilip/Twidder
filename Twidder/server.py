@@ -1,9 +1,37 @@
 from flask import Flask, request, json, jsonify, make_response
 import random
 import database_handler as db
-
+from flask_sock import Sock
 
 app = Flask(__name__)
+sockets = Sock(app)
+
+connections = {}
+
+@sockets.route('/ws')
+def echo_socket(ws):
+    print("New websocket connection")
+    while True:
+        message = ws.receive()
+        data = json.loads(message)
+        if "token" in data:
+            token = data["token"]
+            print("Websocket provided token: " + token)
+            if not isLoggedIn(token):
+                ws.close("Invalid token")
+                break
+            email = tokenToEmail(token)
+            for _token in connections:
+                if email == tokenToEmail(_token):
+                    print("     Found another token for this user: " + _token)
+                    db.signOutUser(_token)
+                    connections[_token].send("terminated")
+                    print("     This token has now been invalidated")
+                    connections.pop(_token)
+                    break
+            connections[token] = ws
+        
+        ws.send("success")
 
 @app.teardown_request
 def teardown(e):
@@ -91,7 +119,6 @@ def userExists(email):
 @app.route("/user/sign_in", methods=["POST"])
 def sign_in():
     data = request.get_json()
-    print(data)
     if 'email' not in data or 'password' not in data:
         return createRespons(400, "Hej")
     else:
