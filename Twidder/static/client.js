@@ -356,7 +356,7 @@ function establish_websocket(){
         socket.send(JSON.stringify(payload));
     };
   
-    socket.onmessage = function(event) {
+    socket.onmessage = function(event){
         if(event.data == "success")
             alert("Websocket connected");
         if(event.data == "terminated"){
@@ -371,6 +371,15 @@ function establish_websocket(){
     socket.onclose = function(event) {
         if (event.wasClean) {
             alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+            if(event.reason == "Invalid token")
+            {
+                alert("Session invalid");
+                localStorage.removeItem("token");
+                localStorage.removeItem("email");
+                localStorage.removeItem("current_tab");
+                displayView(0);
+            }
+            
         } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case

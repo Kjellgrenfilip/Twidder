@@ -17,12 +17,14 @@ def echo_socket(ws):
         if "token" in data:
             token = data["token"]
             print("Websocket provided token: " + token)
-            if not isLoggedIn(token):
-                ws.close("Invalid token")
+            if not isLoggedIn(token):                   #Om webbläsaren har gammal token och försöker visa sidan
+                print("User is not logged in!")
+                ws.send("terminated")
                 break
             email = tokenToEmail(token)
+            print("     This token has email: "+email)
             for _token in connections:
-                if email == tokenToEmail(_token):
+                if email == tokenToEmail(_token) and token != _token:
                     print("     Found another token for this user: " + _token)
                     db.signOutUser(_token)
                     connections[_token].send("terminated")

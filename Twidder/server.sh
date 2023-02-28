@@ -1,1 +1,1 @@
-gunicorn -w 4 --threads 100 -b 127.0.0.1:5000 server:app
+gunicorn --threads 100 -b 127.0.0.1:5000 server:app
