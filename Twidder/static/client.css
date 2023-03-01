@@ -40,6 +40,9 @@ body{
     background-color: rgb(76, 103, 140);
     border-radius: 0 8px;
 }
+#forgot-pw{
+    margin:10px;
+}
 
 .signup-container{
     width: 100%;
@@ -241,4 +244,18 @@ div.tab-content{
 
 .general-button:hover{
     background: rgb(44, 71, 112);
+}
+
+.reset-container{
+    width: 600px;
+    height:100px;
+    border-radius: 10px;
+    margin: 100px auto 0 auto;
+    border: solid 2px white;
+    background-color: orange;
+    padding:25px;
+}
+
+.reset-container div{
+    text-align: center;
 }

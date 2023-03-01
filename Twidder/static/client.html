@@ -15,7 +15,8 @@
                     <div>Email: <input type="email" id="loginEmail" /></div>
                     <div>Password: <input type="password" id="loginPassword" /></div>
                     <input type="submit" value="Login" id="login-submit"/>
-                </form> 
+                </form>
+                <a  id="forgot-pw" onclick="displayView(2);">Forgot password?</a> 
             </div>
             <div class="signup-container">
                 <h4>Sign up here</h4>
@@ -97,6 +98,16 @@
                     <input class="general-button" type="button" value="Logout" onclick="logout()"/>
                 </div>
             </div>
+        </script>
+        <script type="text/view" id="resetpwview">
+            <div class="reset-container">
+                <form id="resetpw_form" onsubmit="reset_password(this); return false;">
+                    <div>Enter email and press the button to receive a new password</div>
+                    <div><input type="email" required id="reset_email"><input class="general-button" type="submit" value="Reset Password"></div>
+                   
+                </form>
+            </div>
+            
         </script>
     </head>
     <body>

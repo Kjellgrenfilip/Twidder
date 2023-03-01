@@ -27,7 +27,10 @@ def echo_socket(ws):
                 if email == tokenToEmail(_token) and token != _token:
                     print("     Found another token for this user: " + _token)
                     db.signOutUser(_token)
-                    connections[_token].send("terminated")
+                    try:
+                        connections[_token].send("terminated")  #Wrap in try block incase browser has been closed
+                    except Exception as e:
+                        print(e)
                     print("     This token has now been invalidated")
                     connections.pop(_token)
                     break
@@ -262,10 +265,12 @@ def get_messages_by_email(email):
     if logged_in == None:
         return createRespons(401)
     messages = db.getMessages(email)
-    if messages:
-        return createRespons(200, jsonify(messages))
-    else:
+    if messages == False:
         return createRespons(500) #INTERNAL server error, nånting går fel på Databassidan
+    else:
+        return createRespons(200, jsonify(messages))
+   
+        
 
     return createRespons(401)
 

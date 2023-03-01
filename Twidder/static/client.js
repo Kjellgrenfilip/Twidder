@@ -16,6 +16,10 @@ displayView = function(view){
         getPersonalInfo();
         getMessages();
     }
+    else if(view == 2)
+    {
+        document.getElementById("content").innerHTML = document.getElementById("resetpwview").innerHTML;
+    }
         
     //Kod för att visa olika views
 };
@@ -357,10 +361,10 @@ function establish_websocket(){
     };
   
     socket.onmessage = function(event){
-        if(event.data == "success")
-            alert("Websocket connected");
+      //  if(event.data == "success")
+       //     alert("Websocket connected");
         if(event.data == "terminated"){
-            alert("Session invalid");
+          //  alert("Session invalid");
             localStorage.removeItem("token");
             localStorage.removeItem("email");
             localStorage.removeItem("current_tab");
@@ -370,10 +374,10 @@ function establish_websocket(){
   
     socket.onclose = function(event) {
         if (event.wasClean) {
-            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+            //alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
             if(event.reason == "Invalid token")
             {
-                alert("Session invalid");
+                //alert("Session invalid");
                 localStorage.removeItem("token");
                 localStorage.removeItem("email");
                 localStorage.removeItem("current_tab");
@@ -383,12 +387,12 @@ function establish_websocket(){
         } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
-            alert('[close] Connection died');
+           // alert('[close] Connection died');
         }
     };
   
     socket.onerror = function(error) {
-        alert(`[error]`);
+       // alert(`[error]`);
     };
 
 }
