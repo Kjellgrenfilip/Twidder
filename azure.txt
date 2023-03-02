@@ -1,0 +1,16 @@
+Steg för att få upp Twidder på Azure:
+
+*Lägg till Azure repo som remote, förslagsvis har vi en branch där vi pushar till Azure. Tror att requirements, server.py och startup måste ligga i roten.
+    git remote add azure https://twidder.scm.azurewebsites.net:443/twidder.git
+
+*Ändra adressen för xhttp och websockets så att den utgår från document.location (client.js)
+
+*Se till så att Azure startar gunicorn med lämpliga parametrar:
+    az webapp config set --resource-group Twidder_group --name Twidder --startup-file "startup.sh"
+
+    Följande config verkar fungera:
+    gunicorn --threads 100 --workers 1 --worker-class gthread -b 0.0.0.0 server:app
+
+*Just nu initieras inte databasen i koden, vilket innebär att man måste göra följande i ssh-fönstret på Azure efter varje deployment
+    apt install sqlite3
+    sqlite3 database.db < schema.sql
