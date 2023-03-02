@@ -20,23 +20,24 @@ def echo_socket(ws):
             if not isLoggedIn(token):                   #Om webbläsaren har gammal token och försöker visa sidan
                 print("User is not logged in!")
                 ws.send("terminated")
+                ws.close()
                 break
             email = tokenToEmail(token)
             print("     This token has email: "+email)
-            for _token in connections:
-                if email == tokenToEmail(_token) and token != _token:
-                    print("     Found another token for this user: " + _token)
-                    db.signOutUser(_token)
+            if(email in connections):
+                print(connections[email]['token'])
+                if token != connections[email]['token']:
+                    print("     Found another token for this user: ")
+                    db.signOutUser(connections[email]['token'])
                     try:
-                        connections[_token].send("terminated")  #Wrap in try block incase browser has been closed
+                        connections[email]['socket'].send("terminated")  #Wrap in try block incase browser has been closed
+                        connections[email]['socket'].close()
                     except Exception as e:
                         print(e)
                     print("     This token has now been invalidated")
-                    connections.pop(_token)
-                    break
-            connections[token] = ws
+                    connections.pop(email)
+            connections[email] = {'socket':ws,'token':token}       #Decided to save socket and token because of current signout logic
         
-        ws.send("success")
 
 @app.teardown_request
 def teardown(e):
@@ -270,9 +271,6 @@ def get_messages_by_email(email):
     else:
         return createRespons(200, jsonify(messages))
    
-        
-
-    return createRespons(401)
 
 @app.route("/user/post_message", methods=['POST'])
 def post_message(): #Lämna epost tom om vi postar på egen vägg

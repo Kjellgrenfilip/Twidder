@@ -201,6 +201,7 @@ function logout(){
         {
             if(this.status == 200)
             {
+                socket.close()
                 localStorage.removeItem("token");
                 localStorage.removeItem("current_tab");
                 localStorage.removeItem("email");
@@ -280,7 +281,7 @@ function postMessage(){
 
 function getMessages(){
     let curr_tab = localStorage.getItem("current_tab");
-    if(curr_tab == "browsetab" && display_user == "")
+    if((curr_tab == "browsetab" && display_user == "") || curr_tab =="accounttab")
         return;
 
     var xhttp = new XMLHttpRequest();
@@ -361,10 +362,8 @@ function establish_websocket(){
     };
   
     socket.onmessage = function(event){
-      //  if(event.data == "success")
-       //     alert("Websocket connected");
+   
         if(event.data == "terminated"){
-          //  alert("Session invalid");
             localStorage.removeItem("token");
             localStorage.removeItem("email");
             localStorage.removeItem("current_tab");
@@ -374,10 +373,9 @@ function establish_websocket(){
   
     socket.onclose = function(event) {
         if (event.wasClean) {
-            //alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        
             if(event.reason == "Invalid token")
             {
-                //alert("Session invalid");
                 localStorage.removeItem("token");
                 localStorage.removeItem("email");
                 localStorage.removeItem("current_tab");
@@ -387,12 +385,11 @@ function establish_websocket(){
         } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
-           // alert('[close] Connection died');
         }
     };
   
     socket.onerror = function(error) {
-       // alert(`[error]`);
+       
     };
 
 }
