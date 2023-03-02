@@ -2,11 +2,15 @@ from flask import Flask, request, json, jsonify, make_response
 import random
 import database_handler as db
 from flask_sock import Sock
-
+import ssl, smtplib
+from email.message import EmailMessage
 app = Flask(__name__)
 sockets = Sock(app)
 
 connections = {}
+
+email_sender =  "twidder.noreply1@gmail.com"
+email_pw = "rtrxhfkprwqxklsw"
 
 @sockets.route('/ws')
 def echo_socket(ws):
@@ -54,6 +58,14 @@ def createUserToken(email):
     for i in range(len(chars)):
         token += chars[random.randint(0, len(chars)-1)]
     return token
+
+def generatePassword():
+    chars = "abcdefghiklmnopqrstuvwwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    new_pw = ""
+    for i in range(10):
+        new_pw += chars[random.randint(0, len(chars)-1)]
+    return new_pw
+
 
 def createRespons(s_code,data=None): #Kan lägga till fler medlemmar sen som authorization och sånt
     if(data == None):
@@ -117,6 +129,27 @@ def userExists(email):
         return resp
     return True
 
+def sendNewPassword(rec_email, pw):
+    subject = "Twidder Password Reset"
+    body = """
+        Below is your new password for Twidder
+        We STRONGLY recommend you to change it when logged in.
+
+ 
+        """
+    body += pw
+
+    em = EmailMessage()
+    em['from'] = email_sender
+    em['to'] = rec_email
+    em['subject'] = subject
+    em.set_content(body)
+
+    context = ssl.create_default_context() 
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(email_sender, email_pw)
+        smtp.sendmail(email_sender, rec_email, em.as_string())
 
 
 
@@ -190,7 +223,7 @@ def change_password(): #Får in Token i header, gamla + nya lösenordet i bodyn?
     if 'oldPW' in data and 'newPW' in data and len(data['newPW']) >= 8:
         if data['oldPW'] != getPassword(token):
             return createRespons(403) #403 Forbidden: We are logged in and authenticated, but provide wrong information about ourselves
-        response = db.updatePassword(token, data['newPW'])
+        response = db.updatePassword(tokenToEmail(token), data['newPW'])
         if response:
             return createRespons(200)
         else:
@@ -293,7 +326,28 @@ def post_message(): #Lämna epost tom om vi postar på egen vägg
         return createRespons(500)
     return createRespons(400) #Bad request. Svårt att säga vilken felkod
             
-    
+@app.route("/reset_password", methods=['POST'])
+def reset_pw():
+    data = request.get_json()
+    if 'email' not in data:
+        return createRespons(400)
+    email = data['email']
+    if validateEmail(email):
+        if not userExists(email):
+            return createRespons(404)
+        new_pw = generatePassword()
+        response = db.updatePassword(email, new_pw)
+        if response:
+            sendNewPassword(email, new_pw)
+            return createRespons(200)
+        else:
+            return createRespons(500) #500- Internal Server Error.
+    else:   
+        createRespons(400)
+
+
+
+
 if __name__ == "__main__":
     app.debug = True
     app.run()

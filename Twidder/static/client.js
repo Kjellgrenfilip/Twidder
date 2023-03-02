@@ -394,3 +394,26 @@ function establish_websocket(){
 
 }
 
+
+function reset_password(formElement){
+    let email = formElement.reset_email.value;
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function() {
+        if(this.readyState == 4)
+        {
+            if(this.status == 200)
+            {
+                notification("A new password has been sent to you")
+            }
+            else
+            {
+                notification("Server responded with status code: " + this.status, true);        
+            }
+        }
+    };
+    xhttp.open("POST", "http://127.0.0.1:5000/reset_password", true);
+    xhttp.setRequestHeader("Content-type", "application/json");
+    let payload = {"email": email};
+    xhttp.send(JSON.stringify(payload));
+}

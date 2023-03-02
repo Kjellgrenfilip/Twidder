@@ -79,9 +79,8 @@ def getPassword(token):
     except:
         return None
 
-def updatePassword(token, newpw):
+def updatePassword(email, newpw):
     try:
-        email = getLoggedInUser(token)['email']
         get_dB().execute("UPDATE Users SET pwd=? WHERE email=?", [newpw,email])
         get_dB().commit()
     except:
