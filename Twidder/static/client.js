@@ -290,15 +290,22 @@ function getMessages(){
         {
             if(this.status == 200)
             {
+                let count = 1;
                 document.getElementById(curr_tab+"-message-wall").innerHTML = "";
                 let data = JSON.parse(xhttp.responseText);
                 for(key in data)
                 {
-                    document.getElementById(curr_tab+"-message-wall").innerHTML += "<div class='message-container'><div class='message-author'>"+
-                    "<b>"+ data[key].fromEmail  + ":"+"</b>"+
-                    "</div><div class='message-content'>" +
-                    data[key].msg
-                    + "</div></div>";
+                    
+                    document.getElementById(curr_tab+"-message-wall").innerHTML += 
+                    "<div class='message-container' id='"+toString(key)+"'"+"draggable='true' ondragstart='drag(event)'>"
+                        +"<div class='message-author'>"+
+                            "<b>"+ data[key].fromEmail  + ":"+"</b>"+
+                        "</div>" +
+                        "<div class='message-content'>" +
+                            data[key].msg
+                        + "</div>"
+                    +"</div>";
+                    
                 }
             }
             else
@@ -417,3 +424,19 @@ function reset_password(formElement){
     let payload = {"email": email};
     xhttp.send(JSON.stringify(payload));
 }
+
+function allowDrop(ev) {
+    ev.preventDefault();
+  }
+  
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.children[1].innerHTML);
+    //alert(ev.target.children[1].innerHTML);
+}
+  
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+ 
+    ev.target.innerHTML = data;
+  }
