@@ -230,6 +230,9 @@ div.tab-content{
 }
 #browsetab-message-wall{
     display:none;
+    height: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .general-button{
@@ -258,4 +261,10 @@ div.tab-content{
 
 .reset-container div{
     text-align: center;
+}
+
+#hometab-message-wall{
+    height: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }

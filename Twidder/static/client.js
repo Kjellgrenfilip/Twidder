@@ -293,6 +293,7 @@ function getMessages(){
                 let count = 1;
                 document.getElementById(curr_tab+"-message-wall").innerHTML = "";
                 let data = JSON.parse(xhttp.responseText);
+                
                 for(key in data)
                 {
                     
