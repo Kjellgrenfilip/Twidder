@@ -81,7 +81,7 @@ function validate_signup_input(formElement)
     'country': formElement.signupCountry.value,
     }
 
-    xhttp.open("POST", "http://127.0.0.1:5000/user/sign_up", true);
+    xhttp.open("POST", document.location+"user/sign_up", true);
     xhttp.setRequestHeader("Content-type", "application/json");
     let payload = JSON.stringify(dataobject);
     xhttp.send(payload);
@@ -129,7 +129,7 @@ function validate_login(formElement){
  
     };
     
-    xhttp.open("POST", "http://127.0.0.1:5000/user/sign_in", true);
+    xhttp.open("POST", document.location+"user/sign_in", true);
     xhttp.setRequestHeader("Content-type", "application/json");
     let payload = {"email": formElement.loginEmail.value, "password": formElement.loginPassword.value };
     xhttp.send(JSON.stringify(payload));
@@ -185,7 +185,7 @@ function change_password(formElement){
         }
     };
 
-    xhttp.open("PUT", "http://127.0.0.1:5000/user/change_pw", true);
+    xhttp.open("PUT", document.location+"user/change_pw", true);
     xhttp.setRequestHeader("Content-type", "application/json");
     xhttp.setRequestHeader("Authorization", localStorage.getItem("token"));
 
@@ -215,7 +215,7 @@ function logout(){
         }
     };
 
-    xhttp.open("DELETE", "http://127.0.0.1:5000/user/sign_out", true);
+    xhttp.open("DELETE", document.location+"user/sign_out", true);
     xhttp.setRequestHeader("Authorization", localStorage.getItem("token"));
     xhttp.send();
     
@@ -242,7 +242,7 @@ function getPersonalInfo(){
             }
         }
     };
-    xhttp.open("GET", "http://127.0.0.1:5000/user/get_user_data_by_token", true);
+    xhttp.open("GET", document.location+"user/get_user_data_by_token", true);
     xhttp.setRequestHeader("Authorization", localStorage.getItem("token"));
     xhttp.send();
 }
@@ -264,7 +264,7 @@ function postMessage(){
             }
         }
     };
-    xhttp.open("POST", "http://127.0.0.1:5000/user/post_message", true);
+    xhttp.open("POST", document.location+"user/post_message", true);
     xhttp.setRequestHeader("Authorization", localStorage.getItem("token"));
     xhttp.setRequestHeader("Content-type", "application/json");
     let curr_tab = localStorage.getItem("current_tab");
@@ -319,8 +319,8 @@ function getMessages(){
     };
     (
     curr_tab == "hometab" ? 
-    xhttp.open("GET", "http://127.0.0.1:5000/user/get_messages_by_token", true) :
-    xhttp.open("GET", "http://127.0.0.1:5000/user/get_messages_by_email/"+display_user)
+    xhttp.open("GET", document.location+"user/get_messages_by_token", true) :
+    xhttp.open("GET", document.location+"user/get_messages_by_email/"+display_user)
     )
     xhttp.setRequestHeader("Authorization", localStorage.getItem("token"));
     xhttp.send();
@@ -357,13 +357,18 @@ function searchUser(){
         }
     };
    
-    xhttp.open("GET", "http://127.0.0.1:5000/user/get_user_data_by_email/"+document.getElementById("search-email").value, true) 
+    xhttp.open("GET", document.location+"user/get_user_data_by_email/"+document.getElementById("search-email").value, true) 
     xhttp.setRequestHeader("Authorization", localStorage.getItem("token"));
     xhttp.send();
 }
 
 function establish_websocket(){
-    socket = new WebSocket("ws://127.0.0.1:5000/ws");
+    let endpoint;
+    if(document.location.protocol == "http:")
+        endpoint = "ws://"+document.location.host + "/ws";
+    else
+        endpoint = "wss://"+document.location.host + "/ws";
+    socket = new WebSocket(endpoint);
 
     socket.onopen = function(e) {
 
@@ -422,7 +427,7 @@ function reset_password(formElement){
             }
         }
     };
-    xhttp.open("POST", "http://127.0.0.1:5000/reset_password", true);
+    xhttp.open("POST", document.location+"reset_password", true);
     xhttp.setRequestHeader("Content-type", "application/json");
     let payload = {"email": email};
     xhttp.send(JSON.stringify(payload));

@@ -1,0 +1,1 @@
+gunicorn --threads 100 --workers 1 --worker-class gthread -b 0.0.0.0 server:app
