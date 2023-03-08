@@ -1,6 +1,6 @@
 let display_user = "";
 let socket;
-
+var curr_pos;
 displayView = function(view){
     notification("",true);
     if(view == 0)
@@ -29,6 +29,7 @@ window.onload = function(){
     {
         establish_websocket();      //If we have token, connect websocket to see if sesion is valid
         displayView(1);
+        getCoordinates();
     }
         
     else
@@ -120,6 +121,7 @@ function validate_login(formElement){
                 localStorage.setItem("email", formElement.loginEmail.value);
                 establish_websocket();
                 displayView(1);
+                getCoordinates();
             }
             else
             {
@@ -205,6 +207,7 @@ function logout(){
                 localStorage.removeItem("token");
                 localStorage.removeItem("current_tab");
                 localStorage.removeItem("email");
+                localStorage.removeItem("pos");
                 displayView(0);
             }
             else
@@ -268,9 +271,10 @@ function postMessage(){
     xhttp.setRequestHeader("Content-type", "application/json");
     let curr_tab = localStorage.getItem("current_tab");
     let msg = document.getElementById(curr_tab+"-message").value;
-    
+    let pos = localStorage.getItem("pos");
     let to_email = (curr_tab == "hometab" ? localStorage.getItem("email") : document.getElementById("search-email").value)
-    let payload = {"to_email": to_email, "message": msg};
+    let payload = {"to_email": to_email, "message": msg, "position":pos};
+    
     xhttp.send(JSON.stringify(payload));
     
    // let response = serverstub.postMessage(localStorage.getItem("token"), msg, (curr_tab == "hometab" ? null : document.getElementById("search-email").value));
@@ -304,7 +308,8 @@ function getMessages(){
                         "</div>" +
                         "<div class='message-content'>" +
                             data[key].msg
-                        + "</div>"
+                        + "</div>"+
+                        "<div>"+data[key].pos+"</div>"
                     +"</div>";
                     
                 }
@@ -441,3 +446,22 @@ function drop(ev) {
  
     ev.target.value = data;
   }
+
+  
+  
+  function getCoordinates() {
+    if (navigator.geolocation) {
+         navigator.geolocation.getCurrentPosition(getLocation);
+    } else { 
+      notification("Geolocation is not supported by this browser.", true);
+      localStorage.removeItem("pos");
+    }
+  }
+  
+
+  function getLocation(position){
+    let pos = position.coords.latitude+ ','+position.coords.longitude;
+    localStorage.setItem("pos", pos);
+  }
+
+  

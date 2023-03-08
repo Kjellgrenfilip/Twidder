@@ -120,10 +120,11 @@ def signOutUser(token):
         print("failed to delete logged in user")
         return False
     
-def postMessage(from_email, msg, to_email):
+def postMessage(from_email, msg, to_email, pos=None):
     try:
-        get_dB().execute("insert into userMessages (toEmail, fromEmail, msg) values(?,?,?);", [to_email,from_email, msg])
+        get_dB().execute("insert into userMessages (toEmail, fromEmail, msg, pos) values(?,?,?,?);", [to_email,from_email, msg,pos])
         get_dB().commit()
+        print(pos)
         return True
     except:
         return False
@@ -142,7 +143,8 @@ def getMessages(email):
         for row in cursor.fetchall():
             response[msg_id] = {'toEmail':   row[1],
                                 'fromEmail': row[2],
-                                'msg':       row[3]
+                                'msg':       row[3],
+                                'pos':       row[4]
                                }
             msg_id += 1
 

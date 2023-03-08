@@ -3,6 +3,7 @@ import random
 import database_handler as db
 from flask_sock import Sock
 import ssl, smtplib
+import requests
 from email.message import EmailMessage
 app = Flask(__name__)
 sockets = Sock(app)
@@ -11,6 +12,7 @@ connections = {}
 
 email_sender =  "twidder.noreply1@gmail.com"
 email_pw = "rtrxhfkprwqxklsw"
+
 
 @sockets.route('/ws')
 def echo_socket(ws):
@@ -151,7 +153,11 @@ def sendNewPassword(rec_email, pw):
         smtp.login(email_sender, email_pw)
         smtp.sendmail(email_sender, rec_email, em.as_string())
 
-
+def getLocation(pos):
+    url = "https://geocode.xyz/"+pos+"?json=1&auth=433505021179596109422x95061"
+    resp = requests.get(url)
+    city = json.loads(resp.text)['city']
+    return city
 
 
 #------------REQUESTS------------------
@@ -319,7 +325,13 @@ def post_message(): #Lämna epost tom om vi postar på egen vägg
     
     if userExists(data["to_email"]) == None:
         return createRespons(404)
-    response = db.postMessage(tokenToEmail(token), data['message'],data['to_email'])
+    if 'position' not in data:
+        response = db.postMessage(tokenToEmail(token), data['message'],data['to_email'], pos=None)
+    else:
+        location = None
+        if data['position'] != None:
+            location = getLocation(data['position'])
+        response = db.postMessage(tokenToEmail(token), data['message'],data['to_email'], pos=location)
     if response:
         return createRespons(201)
     else:

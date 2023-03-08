@@ -18,7 +18,8 @@ CREATE TABLE userMessages(
     id INTEGER primary key autoincrement,
     toEmail VARCHAR(30),
     fromEmail VARCHAR(30),
-    msg VARCHAR(144)
+    msg VARCHAR(144),
+    pos VARCHAR(100)
 );
 
 
