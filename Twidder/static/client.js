@@ -53,9 +53,7 @@ function validate_signup_input(formElement)
     else if(pw != reppw)
     {
         notification("Passwords do not match", true);
-        return;
     }
-
     var xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function() {
@@ -304,12 +302,11 @@ function getMessages(){
                     document.getElementById(curr_tab+"-message-wall").innerHTML += 
                     "<div class='message-container' id='"+toString(key)+"'"+"draggable='true' ondragstart='drag(event)'>"
                         +"<div class='message-author'>"+
-                            "<b>"+ data[key].fromEmail  + ":"+"</b>"+
+                            "<b>"+ data[key].fromEmail  + (data[key].pos == null ? "" : " - "+data[key].pos ) + "</b>"+
                         "</div>" +
                         "<div class='message-content'>" +
                             data[key].msg
-                        + "</div>"+
-                        "<div>"+data[key].pos+"</div>"
+                        + "</div>"
                     +"</div>";
                     
                 }
@@ -433,18 +430,26 @@ function reset_password(formElement){
 
 function allowDrop(ev) {
     ev.preventDefault();
+    ev.target.style.borderColor = "lime";
+  }
+
+  function dragLeave(ev){
+    ev.preventDefault();
+    ev.target.style.borderColor = "lightgrey";
   }
   
 function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.children[1].innerHTML);
+    //Hämta children[1] eftersom message-content är andra elementet i message containern
+    ev.dataTransfer.setData("message-content", ev.target.children[1].innerHTML);
+    console.log(ev);
     //alert(ev.target.children[1].innerHTML);
 }
   
 function drop(ev) {
     ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
- 
-    ev.target.value = data;
+    var data = ev.dataTransfer.getData("message-content");
+    ev.target.style.borderColor = "lightgrey";
+    ev.target.value = data;     //Target förväntas vara textarean för att skriva meddelande
   }
 
   
