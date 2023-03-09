@@ -433,23 +433,27 @@ function reset_password(formElement){
     xhttp.send(JSON.stringify(payload));
 }
 
+//When dragged element enters drop zone
 function allowDrop(ev) {
     ev.preventDefault();
     ev.target.style.borderColor = "lime";
   }
 
+//When dragged element leaves drop zone
   function dragLeave(ev){
     ev.preventDefault();
     ev.target.style.borderColor = "lightgrey";
   }
-  
+
+//Event handler for dragging element
 function drag(ev) {
     //Hämta children[1] eftersom message-content är andra elementet i message containern
     ev.dataTransfer.setData("message-content", ev.target.children[1].innerHTML);
     console.log(ev);
     //alert(ev.target.children[1].innerHTML);
 }
-  
+
+//Event handler for dropping element
 function drop(ev) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("message-content");

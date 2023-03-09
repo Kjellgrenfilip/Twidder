@@ -10,12 +10,12 @@ app = Flask(__name__)
 sockets = Sock(app)
 #Connections stores emails with corresponding tokens and websocket
 connections = {}
-#email and application password. Used for sending reset emails.
+#email and application password. Used for sending reset emails. pls dont hack :()
 email_sender =  "twidder.noreply1@gmail.com"
 email_pw = "rtrxhfkprwqxklsw"
 
 
-
+#Socket Endpoint that expects to establish a new connection if correct token is provided. 
 @sockets.route('/ws')
 def echo_socket(ws):
     
@@ -32,19 +32,20 @@ def echo_socket(ws):
             if(email in connections):  #If the email already exists in an active session.
                 if token != connections[email]['token']:    #Check so that the token is not the one from the same session that tries to establish connection
                     db.signOutUser(connections[email]['token']) #Signs out the other session
-                    try:                                #Wrap in try block incase browser has been closed
+                    try:                                #Wrap in try block incase target browser has been closed
                         connections[email]['socket'].send("terminated")  #Terminate the other session
                         connections[email]['socket'].close()
                     except Exception as e:
                         print(e)
                     connections.pop(email)  
-            connections[email] = {'socket':ws,'token':token}       #Save socket and token because of signout logic
+            connections[email] = {'socket':ws,'token':token}       #Save socket and token
         
 
 @app.teardown_request
 def teardown(e):
     db.disconnect()
 
+#Root path: deliver documents
 @app.route("/", methods=["GET"])
 def root():
     return app.send_static_file("client.html"), 200
@@ -91,6 +92,8 @@ def validateUserInput(data):
     if len(data['city']) < 1 or len(data['city']) > 20:
         return False
     if len(data['country']) < 1 or len(data['country']) > 20:
+        return False
+    if not validateEmail(data['email']):
         return False
     return True
 #Checks that @ exists, and that the remaining part qualifies as a domain.
@@ -166,6 +169,7 @@ def getLocation(pos):
 
 
 #------------REQUESTS------------------
+#This endpoint shall recieve and Email and a password, sign in a user, return token.
 @app.route("/user/sign_in", methods=["POST"])
 def sign_in():
     data = request.get_json()
@@ -184,7 +188,8 @@ def sign_in():
             return createRespons(200, jsonify(token=token)) #Everything went well, 200-Ok and return the token
 
         return createRespons(401)  #User provided wrong password, 401- Unauthorized
-        
+
+#This endpoint shall recieve all information needed for signing up a new account. Only returns status code.
 @app.route("/user/sign_up", methods=["POST"])
 def sign_up():
     data = request.get_json()
@@ -202,7 +207,7 @@ def sign_up():
         
     return createRespons(400) #400- Bad Request: Correct data was not provided in request body or not valid information
 
-
+#This endpoint signs out a user given a valid token. returns status code.
 @app.route("/user/sign_out", methods=["DELETE"])
 def sign_out():
     if 'Authorization' in request.headers: #Check if token is provided in header
@@ -220,6 +225,7 @@ def sign_out():
             
     return createRespons(400) #Bad Request - No Token Provided in the header  
 
+#This endpoints expects a token, old- and new password. Updates pw in DB. returns statuscode
 @app.route("/user/change_pw", methods=['PUT'])
 def change_password():
     if 'Authorization' not in request.headers:
@@ -238,10 +244,11 @@ def change_password():
         if response:
             return createRespons(200) #Password succesfully changed, 200 OK
         else:
-            return createRespons(500) #500- Internal Server Error. Database Failure
+            return createRespons(500) #Database Failure
 
-    return createRespons(400) #Not correct data provided or password too short. Bad request
+    return createRespons(400) #required field not provided OR password too short. Bad request
 
+#This endopoint expects a token. If token is valid, returns user data from DB.
 @app.route("/user/get_user_data_by_token", methods=['GET'])
 def get_user_data_by_token():
     if 'Authorization' in request.headers:
@@ -256,7 +263,8 @@ def get_user_data_by_token():
             return createRespons(500) #Database failure
         return createRespons(200, jsonify(user_data)) #200 OK - User data is returned
     return createRespons(400) #Bad request. no authorization header
-        
+
+#This endopoint expects a token and another users emmail. If token is valid, returns user data(email) from DB.
 @app.route("/user/get_user_data_by_email/<email>", methods=['GET'])
 def get_user_data_by_email(email):
     if 'Authorization' in request.headers:
@@ -276,6 +284,7 @@ def get_user_data_by_email(email):
         return createRespons(200, jsonify(user_data))   #All ok, 200, return the requested data
     return createRespons(400) #No token in header, 400 bad request
 
+#This endpoint expects a token. IF token is valid, returns all messages from DB associated with the token.
 @app.route("/user/get_messages_by_token", methods=['GET'])
 def get_messages_by_token():
     if 'Authorization' not in request.headers:
@@ -293,7 +302,8 @@ def get_messages_by_token():
     else:
         return createRespons(200, jsonify(messages)) #MEssages found. 200 ok and returned to client
     return createRespons(401) #Unauthorized - 401 
-    
+
+#This endpoint expects a token and email. IF token is valid, returns all messages from DB associated with the email.
 @app.route("/user/get_messages_by_email/<email>", methods=['GET'])
 def get_messages_by_email(email):
     if 'Authorization' not in request.headers:
@@ -315,7 +325,8 @@ def get_messages_by_email(email):
     else:
         return createRespons(200, jsonify(messages)) #200 OK - return messages
    
-
+#This endpoint expects token in header, message, to-email in body. Updates the DB with the given message.
+#Returns only statuscode
 @app.route("/user/post_message", methods=['POST'])
 def post_message(): 
     data = request.get_json()
@@ -341,7 +352,9 @@ def post_message():
         return createRespons(201) #Created - A message has been created and posted
     else:
         return createRespons(500) #Database failure
-            
+
+#This endpoint recieves an Email. If email i valid, updates DB with new generated password. Sends email to user.
+#Returns status code
 @app.route("/reset_password", methods=['POST']) #Maybe change this method put?
 def reset_pw():
     data = request.get_json()
